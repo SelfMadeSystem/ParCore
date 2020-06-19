@@ -1,0 +1,5 @@
+name: ParCore
+version: @version@
+main: uwu.smsgamer.parcore.ParCore
+authors: [Sms_Gamer_3808]
+description: Parkour core for MatrixPvP.

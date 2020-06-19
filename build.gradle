@@ -1,0 +1,39 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+apply plugin: 'java'
+
+group = 'uwu.smsgamer'
+version = '1.0'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+    maven { url 'http://ci.athion.net/job/FastAsyncWorldEdit/ws/mvn/' }
+    maven { url 'https://maven.enginehub.org/repo/' }
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:plugin-annotations:1.2.2-SNAPSHOT'
+    annotationProcessor 'org.spigotmc:plugin-annotations:1.2.2-SNAPSHOT'
+    compile 'com.boydti:fawe-api:latest'
+    compile 'com.boydti:fawe-bukkit:latest'
+    compile 'com.sk89q.worldedit:worldedit-core:6.1.4-SNAPSHOT'
+    compile 'com.sk89q.worldedit:worldedit-bukkit:6.1.4-SNAPSHOT'
+}
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        filter ReplaceTokens, tokens: [version: version]
+    }
+}
