@@ -1,0 +1,5 @@
+size:
+  x: 64
+  z: 80
+spacing: 1024
+wallMaterial: BEDROCK

@@ -23,13 +23,20 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
     compileOnly 'org.spigotmc:plugin-annotations:1.2.2-SNAPSHOT'
+    
     annotationProcessor 'org.spigotmc:plugin-annotations:1.2.2-SNAPSHOT'
+
     compile 'com.boydti:fawe-api:latest'
-    compile 'com.boydti:fawe-bukkit:latest'
     compile 'com.sk89q.worldedit:worldedit-core:6.1.4-SNAPSHOT'
     compile 'com.sk89q.worldedit:worldedit-bukkit:6.1.4-SNAPSHOT'
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
 
 processResources {
