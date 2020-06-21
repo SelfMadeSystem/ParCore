@@ -34,7 +34,7 @@ public class WorldManager {
         int last = PlayerManager.playerList.indexOf(player.getName());
         Vector min = new Vector((last * Vars.spacing), 0, (last * Vars.spacing));
         Vector max = new Vector(Vars.size.getBlockX() + (last * Vars.spacing), 255, Vars.size.getBlockZ() + (last * Vars.spacing));
-        PlayerManager.playerChanged(player, min, max);
+        PlayerManager.playerMakeMap(player, min, max);
         BuildUtils.setupArena(Vars.wallMaterial, world, min, max);
         player.teleport(new Location(world, min.getX() + 4, 128, min.getZ() + 4));
     }

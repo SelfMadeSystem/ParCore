@@ -2,11 +2,11 @@ package uwu.smsgamer.parcore.managers;
 
 import com.sk89q.worldedit.Vector;
 import lombok.Getter;
-import org.bukkit.Bukkit;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.*;
 import uwu.smsgamer.parcore.*;
 import uwu.smsgamer.parcore.utils.ThreeEntry;
 
@@ -17,7 +17,7 @@ public class PlayerManager implements Listener {
     @Getter
     static PlayerManager instance;
     public static ArrayList<String> playerList = new ArrayList<>();
-    static SortedMap<String, ThreeEntry<Vector, Vector, Boolean>> players = new TreeMap<>();
+    static SortedMap<String, ThreeEntry<Vector, Vector, Byte>> players = new TreeMap<>();
 
     public static void setup(ParCore parCore) {
         pl = parCore;
@@ -26,33 +26,64 @@ public class PlayerManager implements Listener {
     }
 
     public static void playerJoinedMap(Player player) {
-        players.put(player.getName(), new ThreeEntry<>(null, null, true));
+        players.put(player.getName(), new ThreeEntry<>(null, null, (byte) 1));
+        player.setGameMode(GameMode.ADVENTURE);
     }
 
-    public static void playerChanged(Player player, Vector min, Vector max) {
-        players.put(player.getName(), new ThreeEntry<>(min, max, false));
+    public static void playerMakeMap(Player player, Vector min, Vector max) {
+        players.put(player.getName(), new ThreeEntry<>(min, max, (byte) 0));
+        player.setGameMode(GameMode.CREATIVE);
     }
 
     public static void backToSpawn(Player player) {
-        players.put(player.getName(), new ThreeEntry<>(null, null, true));
+        players.put(player.getName(), new ThreeEntry<>(null, null, (byte) 2));
+        player.setGameMode(GameMode.ADVENTURE);
         player.teleport(Vars.respawnLocation);
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        if (!playerList.contains(event.getPlayer().getName()))
+        if (!playerList.contains(event.getPlayer().getName())) {
             playerList.add(event.getPlayer().getName());
+            backToSpawn(event.getPlayer());
+        }
+    }
+
+    @EventHandler
+    public void onMove(PlayerMoveEvent event) {
+        if (players.containsKey(event.getPlayer().getName())) {
+            ThreeEntry<Vector, Vector, Byte> entry = players.get(event.getPlayer().getName());
+            if (entry.getW() == 0) {
+                if (entry.getK() == null || entry.getV() == null)
+                    return;
+                Vector min = entry.getK();
+                Vector max = entry.getV();
+                if (event.getTo().getX() <= min.getBlockX() ||
+                  event.getTo().getZ() <= min.getBlockZ() ||
+                  event.getTo().getX() >= max.getBlockX() ||
+                  event.getTo().getZ() >= max.getBlockZ()) {
+                    event.setCancelled(true);
+                    event.getPlayer().sendMessage("You are not leave the designated arena!");
+                }
+            } else if (entry.getW() == 2) {
+                if (event.getTo().getY() < 0 || event.getTo().getY() > 258) {
+                    backToSpawn(event.getPlayer());
+                }
+            }
+        }
     }
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
-            ThreeEntry<Vector, Vector, Boolean> entry = players.get(event.getPlayer().getName());
-            if (entry.getW()) {
+            ThreeEntry<Vector, Vector, Byte> entry = players.get(event.getPlayer().getName());
+            if (entry.getW() > 0) {
                 event.getPlayer().sendMessage("You are not allowed to break blocks!");
                 event.setCancelled(true);
                 return;
             }
+            if (entry.getK() == null || entry.getV() == null)
+                return;
             Vector min = entry.getK();
             Vector max = entry.getV();
             if (event.getBlock().getLocation().getX() <= min.getBlockX() ||
@@ -68,12 +99,14 @@ public class PlayerManager implements Listener {
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
-            ThreeEntry<Vector, Vector, Boolean> entry = players.get(event.getPlayer().getName());
-            if (entry.getW()) {
+            ThreeEntry<Vector, Vector, Byte> entry = players.get(event.getPlayer().getName());
+            if (entry.getW() > 0) {
                 event.getPlayer().sendMessage("You are not allowed to place blocks!");
                 event.setCancelled(true);
                 return;
             }
+            if (entry.getK() == null || entry.getV() == null)
+                return;
             Vector min = entry.getK();
             Vector max = entry.getV();
             if (event.getBlock().getLocation().getX() <= min.getBlockX() ||
