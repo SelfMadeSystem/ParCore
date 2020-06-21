@@ -6,6 +6,7 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
 import uwu.smsgamer.parcore.*;
 import uwu.smsgamer.parcore.utils.ThreeEntry;
@@ -39,6 +40,8 @@ public class PlayerManager implements Listener {
         players.put(player.getName(), new ThreeEntry<>(null, null, (byte) 2));
         player.setGameMode(GameMode.ADVENTURE);
         player.teleport(Vars.respawnLocation);
+        player.setHealth(20);
+        player.setFoodLevel(20);
     }
 
     @EventHandler
@@ -46,6 +49,16 @@ public class PlayerManager implements Listener {
         if (!playerList.contains(event.getPlayer().getName())) {
             playerList.add(event.getPlayer().getName());
             backToSpawn(event.getPlayer());
+        }
+    }
+
+    @EventHandler
+    public void onDamage(EntityDamageEvent event) {
+        if (players.containsKey(event.getEntity().getName())) {
+            ThreeEntry<Vector, Vector, Byte> entry = players.get(event.getEntity().getName());
+            if (entry.getW() == 2) {
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -61,11 +74,14 @@ public class PlayerManager implements Listener {
                 if (event.getTo().getX() <= min.getBlockX() ||
                   event.getTo().getZ() <= min.getBlockZ() ||
                   event.getTo().getX() >= max.getBlockX() ||
-                  event.getTo().getZ() >= max.getBlockZ()) {
+                  event.getTo().getZ() >= max.getBlockZ() ||
+                  event.getTo().getY() < -4 ||
+                  event.getTo().getY() > 260) {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage("You are not leave the designated arena!");
                 }
             } else if (entry.getW() == 2) {
+                event.getPlayer().setFoodLevel(20);
                 if (event.getTo().getY() < 0 || event.getTo().getY() > 258) {
                     backToSpawn(event.getPlayer());
                 }

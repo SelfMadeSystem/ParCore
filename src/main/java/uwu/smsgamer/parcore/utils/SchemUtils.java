@@ -16,7 +16,7 @@ import java.io.*;
 import java.util.*;
 
 public class SchemUtils { // TODO: 2020-06-18 PlayerName'n'MapName'n'shit
-    public static void saveSchematic(Location loc, int x, int z, String playerName, String mapName) throws IOException {
+    public static void saveSchematic(Location loc, int x, int z, String playerName, String mapName, Vector spawnLocation) throws IOException {
         File file = new File(FileManager.getSchemaName(playerName, mapName));
         loc.setY(0);
         Vector bot = new Vector(loc.getBlockX(), 0, loc.getBlockZ());
@@ -30,6 +30,9 @@ public class SchemUtils { // TODO: 2020-06-18 PlayerName'n'MapName'n'shit
         config.set("description", "");
         config.set("published", false);
         config.set("likes", new ArrayList<Boolean>());
+        config.set("x", spawnLocation.getBlockX());
+        config.set("y", spawnLocation.getBlockY());
+        config.set("z", spawnLocation.getBlockZ());
         config.save(new File(FileManager.getYamlName(playerName, mapName)));
     }
 

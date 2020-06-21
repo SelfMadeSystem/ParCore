@@ -60,7 +60,7 @@ public class WorldManager {
         int last = PlayerManager.playerList.indexOf(player.getName());
         try {
             SchemUtils.saveSchematic(new Location(world, (last * Vars.spacing) + 1, 0, (last * Vars.spacing) + 1),
-              Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName);
+              Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName, new Vector(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()));
         } catch (IOException e) {
             e.printStackTrace();
             player.sendMessage(ChatColor.DARK_RED + "An unknown error occurred when saving schematic: " + player.getName() + ":" + mapName +

@@ -22,7 +22,7 @@ public class FileManager {
         try {
             for (String st : getAllSchemaNames()) {
                 String[] strings = st.split(sp);
-                mapFiles.put(st, getMapFile(strings[0], strings[1]));
+                mapFiles.put(st, getMapFile(strings[0], strings[1].split("\\.")[0]));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -51,10 +51,5 @@ public class FileManager {
         Stream<Path> walk = Files.walk(Paths.get(mapPath));
         return walk.filter(Files::isRegularFile)
           .map(Path::toString).collect(Collectors.toList());
-    }
-
-    public static List<File> getAllSchemaFiles() throws IOException {
-        Stream<Path> walk = Files.walk(Paths.get(mapPath));
-        return walk.filter(Files::isRegularFile).map(Path::toFile).collect(Collectors.toList());
     }
 }
