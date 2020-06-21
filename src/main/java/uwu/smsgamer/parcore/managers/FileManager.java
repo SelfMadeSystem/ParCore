@@ -18,7 +18,7 @@ public class FileManager {
 
     public static void setup(JavaPlugin plugin) {
         pl = plugin;
-        mapPath = pl.getDataFolder().getAbsolutePath() + Vars.mapsPath;
+        mapPath = pl.getDataFolder().getAbsolutePath() + "/" + Vars.mapsPath;
         try {
             for (String st : getAllSchemaNames()) {
                 String[] strings = st.split(sp);
