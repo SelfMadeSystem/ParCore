@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
+import org.bukkit.event.player.PlayerJoinEvent;
 import uwu.smsgamer.parcore.ParCore;
 import uwu.smsgamer.parcore.utils.ThreeEntry;
 
@@ -15,7 +16,8 @@ public class PlayerManager implements Listener {
     static ParCore pl;
     @Getter
     static PlayerManager instance;
-    static Map<String, ThreeEntry<Vector, Vector, Boolean>> players = new HashMap<>();
+    public static ArrayList<String> playerList = new ArrayList<>();
+    static SortedMap<String, ThreeEntry<Vector, Vector, Boolean>> players = new TreeMap<>();
 
     public static void setup(ParCore parCore) {
         pl = parCore;
@@ -23,8 +25,18 @@ public class PlayerManager implements Listener {
         Bukkit.getPluginManager().registerEvents(instance, pl);
     }
 
+    public static void playerJoinedMap(Player player) {
+        players.put(player.getName(), new ThreeEntry<>(null, null, true));
+    }
+
     public static void playerChanged(Player player, Vector min, Vector max) {
         players.put(player.getName(), new ThreeEntry<>(min, max, false));
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        if (!playerList.contains(event.getPlayer().getName()))
+            playerList.add(event.getPlayer().getName());
     }
 
     @EventHandler

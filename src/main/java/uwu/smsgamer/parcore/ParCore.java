@@ -38,6 +38,9 @@ public final class ParCore extends JavaPlugin implements Listener {
         if (event.getMessage().equalsIgnoreCase("/pkr")) {
             WorldManager.newBuildArena(event.getPlayer());
             event.setCancelled(true);
+        } else if (event.getMessage().startsWith("/pkr")) {
+            String[] args = event.getMessage().split(" ");
+            WorldManager.newMapArena(event.getPlayer(), args[1], args[2]);
         }
     }
 }

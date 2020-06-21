@@ -5,13 +5,14 @@ import com.sk89q.worldedit.blocks.*;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import uwu.smsgamer.parcore.*;
-import uwu.smsgamer.parcore.utils.BuildUtils;
+import uwu.smsgamer.parcore.utils.*;
+
+import java.io.IOException;
 
 public class WorldManager {
     static final String worldName = "ParCoreWorld";
     static ParCore pl;
     static World world;
-    static int last = 0;
     static BaseBlock wallBlock;
 
     public static void setup(ParCore plugin) {
@@ -30,21 +31,28 @@ public class WorldManager {
     }
 
     public static void newBuildArena(Player player) {
-        //EditSession session = new EditSessionBuilder(new BukkitWorld(world)).fastmode(true).build();
-        //new Thread(() -> {
+        int last = PlayerManager.playerList.indexOf(player.getName());
         Vector min = new Vector((last * Vars.spacing), 0, (last * Vars.spacing));
         Vector max = new Vector(Vars.size.getBlockX() + (last * Vars.spacing), 255, Vars.size.getBlockZ() + (last * Vars.spacing));
         PlayerManager.playerChanged(player, min, max);
-        /*try {
-            session.makeWalls(new CuboidRegion(min, max), (Pattern) position -> wallBlock);
-            session.setBlock(new Vector(min.getX() + 1, 128, min.getZ() + 1), wallBlock);
-        } catch (WorldEditException e) {
-            e.printStackTrace();
-        }*/
-        BuildUtils.setupArena(world, min, max);
+        BuildUtils.setupArena(Vars.wallMaterial, world, min, max);
         player.teleport(new Location(world, min.getX() + 4, 128, min.getZ() + 4));
-        //}).start();
+    }
 
-        last++;
+    public static void newMapArena(Player player, String playerName, String mapName) {
+        int last = PlayerManager.playerList.indexOf(player.getName());
+        Vector min = new Vector((last * Vars.spacing), 0, (last * Vars.spacing));
+        Vector max = new Vector(Vars.size.getBlockX() + (last * Vars.spacing), 255, Vars.size.getBlockZ() + (last * Vars.spacing));
+        PlayerManager.playerChanged(player, min, max);
+        BuildUtils.setupArena(Vars.wallMaterial, world, min, max);
+        try {
+            SchemUtils.loadSchematic(new Location(player.getWorld(), min.getBlockX(), min.getBlockY(), min.getBlockZ()), playerName, mapName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            player.sendMessage(ChatColor.DARK_RED + "An unknown error occurred when loading schematic: " + playerName + ":" + mapName +
+              ". If you are an admin, please check console for any errors.");
+            return;
+        }
+        player.teleport(new Location(world, min.getX() + 4, 128, min.getZ() + 4));
     }
 }
