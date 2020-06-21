@@ -20,8 +20,8 @@ public final class ParCore extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         ConfigManager.setup(this, "config");
-        ThreadUtils.setup(this);
         Vars.setup();
+        ThreadUtils.setup(this);
         FileManager.setup(this);
         WorldManager.setup(this);
         PlayerManager.setup(this);
