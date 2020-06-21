@@ -3,3 +3,8 @@ size:
   z: 80
 spacing: 1024
 wallMaterial: BEDROCK
+respawnLocation:
+  world: world
+  x: 0
+  y: 129
+  z: 0
