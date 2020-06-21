@@ -2,6 +2,7 @@ package uwu.smsgamer.parcore.managers;
 
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.*;
+import lombok.Getter;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import uwu.smsgamer.parcore.*;
@@ -12,6 +13,7 @@ import java.io.IOException;
 public class WorldManager {
     static final String worldName = "ParCoreWorld";
     static ParCore pl;
+    @Getter
     static World world;
     static BaseBlock wallBlock;
 
@@ -39,21 +41,11 @@ public class WorldManager {
         player.teleport(new Location(world, min.getX() + 4, 128, min.getZ() + 4));
     }
 
-    public static void newMapArena(Player player, String playerName, String mapName) {
+    public static void newMapArena(Player player, String mapName) {
         int last = PlayerManager.playerList.indexOf(player.getName());
         Vector min = new Vector((last * Vars.spacing), 0, (last * Vars.spacing));
         Vector max = new Vector(Vars.size.getBlockX() + (last * Vars.spacing), 255, Vars.size.getBlockZ() + (last * Vars.spacing));
-        PlayerManager.playerJoinedMap(player);
-        BuildUtils.setupArena(Material.AIR, world, min, max);
-        try {
-            SchemUtils.loadSchematic(new Location(player.getWorld(), min.getBlockX(), min.getBlockY(), min.getBlockZ()), playerName, mapName);
-        } catch (IOException e) {
-            e.printStackTrace();
-            player.sendMessage(ChatColor.DARK_RED + "An unknown error occurred when loading schematic: " + playerName + ":" + mapName +
-              ". If you are an admin, please check console for any errors.");
-            return;
-        }
-        player.teleport(new Location(world, min.getX() + 4, 128, min.getZ() + 4));
+        PlayerManager.playerJoinedMap(player, min, max, mapName);
     }
 
     public static void saveBuildArena(Player player, String mapName) {

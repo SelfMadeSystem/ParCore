@@ -15,7 +15,7 @@ import uwu.smsgamer.parcore.managers.FileManager;
 import java.io.*;
 import java.util.*;
 
-public class SchemUtils { // TODO: 2020-06-18 PlayerName'n'MapName'n'shit
+public class SchemUtils {
     public static void saveSchematic(Location loc, int x, int z, String playerName, String mapName, Vector spawnLocation) throws IOException {
         File file = new File(FileManager.getSchemaName(playerName, mapName));
         loc.setY(0);

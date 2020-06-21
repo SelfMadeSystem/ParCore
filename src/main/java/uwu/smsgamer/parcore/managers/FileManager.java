@@ -1,5 +1,6 @@
 package uwu.smsgamer.parcore.managers;
 
+import com.sk89q.worldedit.Vector;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import uwu.smsgamer.parcore.Vars;
@@ -45,6 +46,11 @@ public class FileManager {
 
     public static String getYamlName(String player, String map) {
         return mapPath + player + sp + map + ".yml";
+    }
+
+    public static Vector getRespawnLocation(String player, String map) {
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(new File(getYamlName(player, map)));
+        return new Vector(config.getInt("x"), config.getInt("y"), config.getInt("z"));
     }
 
     public static List<String> getAllSchemaNames() throws IOException {
