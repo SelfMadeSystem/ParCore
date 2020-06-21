@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerJoinEvent;
-import uwu.smsgamer.parcore.ParCore;
+import uwu.smsgamer.parcore.*;
 import uwu.smsgamer.parcore.utils.ThreeEntry;
 
 import java.util.*;
@@ -31,6 +31,11 @@ public class PlayerManager implements Listener {
 
     public static void playerChanged(Player player, Vector min, Vector max) {
         players.put(player.getName(), new ThreeEntry<>(min, max, false));
+    }
+
+    public static void backToSpawn(Player player) {
+        players.put(player.getName(), new ThreeEntry<>(null, null, true));
+        player.teleport(Vars.respawnLocation);
     }
 
     @EventHandler

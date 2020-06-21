@@ -46,6 +46,9 @@ public final class ParCore extends JavaPlugin implements Listener {
             String[] args = event.getMessage().split(" ");
             WorldManager.saveBuildArena(event.getPlayer(), args[1]);
             event.setCancelled(true);
+        } else if (event.getMessage().startsWith("/b2s")) {
+            PlayerManager.backToSpawn(event.getPlayer());
+            event.setCancelled(true);
         }
     }
 }
