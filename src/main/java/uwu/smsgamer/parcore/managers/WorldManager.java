@@ -43,7 +43,7 @@ public class WorldManager {
         int last = PlayerManager.playerList.indexOf(player.getName());
         Vector min = new Vector((last * Vars.spacing), 0, (last * Vars.spacing));
         Vector max = new Vector(Vars.size.getBlockX() + (last * Vars.spacing), 255, Vars.size.getBlockZ() + (last * Vars.spacing));
-        PlayerManager.playerChanged(player, min, max);
+        PlayerManager.playerJoinedMap(player);
         BuildUtils.setupArena(Material.AIR, world, min, max);
         try {
             SchemUtils.loadSchematic(new Location(player.getWorld(), min.getBlockX(), min.getBlockY(), min.getBlockZ()), playerName, mapName);
@@ -59,7 +59,7 @@ public class WorldManager {
     public static void saveBuildArena(Player player, String mapName) {
         int last = PlayerManager.playerList.indexOf(player.getName());
         try {
-            SchemUtils.saveSchematic(new Location(world, (last * Vars.spacing), 0, (last * Vars.spacing)),
+            SchemUtils.saveSchematic(new Location(world, (last * Vars.spacing) + 1, 0, (last * Vars.spacing) + 1),
               Vars.size.getBlockX() - 1, Vars.size.getBlockZ() - 1, player.getName(), mapName);
         } catch (IOException e) {
             e.printStackTrace();
