@@ -8,3 +8,4 @@ respawnLocation:
   x: 0
   y: 129
   z: 0
+mapsPath: "maps/"

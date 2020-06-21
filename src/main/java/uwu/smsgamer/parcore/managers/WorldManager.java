@@ -55,4 +55,16 @@ public class WorldManager {
         }
         player.teleport(new Location(world, min.getX() + 4, 128, min.getZ() + 4));
     }
+
+    public static void saveBuildArena(Player player, String mapName) {
+        int last = PlayerManager.playerList.indexOf(player.getName());
+        try {
+            SchemUtils.saveSchematic(new Location(world, (last * Vars.spacing), 0, (last * Vars.spacing)),
+              Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            player.sendMessage(ChatColor.DARK_RED + "An unknown error occurred when saving schematic: " + player.getName() + ":" + mapName +
+              ". If you are an admin, please check console for any errors.");
+        }
+    }
 }

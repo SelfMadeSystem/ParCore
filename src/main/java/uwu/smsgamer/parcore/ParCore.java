@@ -20,8 +20,8 @@ public final class ParCore extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         ConfigManager.setup(this, "config");
-        ThreadUtils.setup(this);
         Vars.setup();
+        ThreadUtils.setup(this);
         FileManager.setup(this);
         WorldManager.setup(this);
         PlayerManager.setup(this);
@@ -41,6 +41,11 @@ public final class ParCore extends JavaPlugin implements Listener {
         } else if (event.getMessage().startsWith("/pkr")) {
             String[] args = event.getMessage().split(" ");
             WorldManager.newMapArena(event.getPlayer(), args[1], args[2]);
+            event.setCancelled(true);
+        } else if (event.getMessage().startsWith("/save")) {
+            String[] args = event.getMessage().split(" ");
+            WorldManager.saveBuildArena(event.getPlayer(), args[2]);
+            event.setCancelled(true);
         }
     }
 }

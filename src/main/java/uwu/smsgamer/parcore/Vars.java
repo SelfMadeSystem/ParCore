@@ -9,7 +9,8 @@ public class Vars {
     public static Vector size = new Vector(64, 0, 80);
     public static int spacing = 1024;
     public static Material wallMaterial = Material.BEDROCK;
-    public static Location respawnLocation;
+    public static Location respawnLocation = new Location(Bukkit.getWorld("world"), 0, 129, 0);
+    public static String mapsPath = "maps/";
 
     public static void setup() {
         YamlConfiguration config = ConfigManager.getConfig("config");
@@ -18,5 +19,6 @@ public class Vars {
         wallMaterial = Material.matchMaterial(config.getString("wallMaterial"));
         respawnLocation = new Location(Bukkit.getWorld(config.getString("respawnLocation.world")),
           config.getInt("respawnLocation.x"), config.getInt("respawnLocation.y"), config.getInt("respawnLocation.z"));
+        mapsPath = config.getString("mapsPath");
     }
 }
