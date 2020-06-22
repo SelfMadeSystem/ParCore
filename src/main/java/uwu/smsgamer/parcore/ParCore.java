@@ -10,6 +10,9 @@ import org.bukkit.plugin.java.annotation.plugin.author.Author;
 import uwu.smsgamer.parcore.managers.*;
 import uwu.smsgamer.parcore.utils.ThreadUtils;
 
+/**
+ * Main class for this plugin.
+ */
 @Plugin(name = "ParCore", version = "1.0")
 @Description("Parkour core for MatrixPvP.")
 @Author("Sms_Gamer_3808")
@@ -17,6 +20,10 @@ import uwu.smsgamer.parcore.utils.ThreadUtils;
 @Dependency("WorldEdit")
 public final class ParCore extends JavaPlugin implements Listener {
 
+    /**
+     * Sets up Vars, ThreadUtils, every Manager, then registers
+     * events to this class (TEMPORARY WILL REMOVE IN FINAL RELEASE)
+     */
     @Override
     public void onEnable() {
         ConfigManager.setup(this, "config");
@@ -28,11 +35,13 @@ public final class ParCore extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(this, this);
     }
 
+    /**Tells the WorldManager that we're disabling. Doesn't do anything atm*/
     @Override
     public void onDisable() {
         WorldManager.done();
     }
 
+    /**TEMPORARY housing of commands to test shit.*/
     @EventHandler
     public void onCommand(PlayerCommandPreprocessEvent event) {
         if (event.getMessage().equalsIgnoreCase("/pkr")) {

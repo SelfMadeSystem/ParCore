@@ -2,6 +2,11 @@ package uwu.smsgamer.parcore.utils;
 
 import java.security.*;
 
+/**
+ * Unused. Proud that I made this though.
+ *
+ * @param <T> Type
+ */
 public class Sha1Obj<T> {
     private static MessageDigest md;
     private T value;
