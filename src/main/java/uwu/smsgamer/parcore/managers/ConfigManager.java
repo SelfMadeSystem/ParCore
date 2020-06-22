@@ -6,6 +6,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Config manager for this plugin loads configs and gets configs and saves configs. Nothing to really document here if you can read Java.
+ */
 public class ConfigManager {
     public static Map<String, YamlConfiguration> configs = new HashMap<>();
     private static JavaPlugin pl;

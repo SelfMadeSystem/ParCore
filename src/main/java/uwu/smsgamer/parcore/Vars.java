@@ -22,7 +22,7 @@ public class Vars {
     /**
      * Respawn location (to hub/spawn), not respawn in game (playing map)
      */
-    public static Location respawnLocation = new Location(Bukkit.getWorld("world"), 0, 129, 0);
+    public static Location spawnLocation = new Location(Bukkit.getWorld("world"), 0, 129, 0);
     /**
      * Directory where maps are held
      */
@@ -38,8 +38,8 @@ public class Vars {
         size = new Vector(config.getInt("size.x"), 0, config.getInt("size.z"));
         spacing = config.getInt("spacing");
         wallMaterial = Material.matchMaterial(config.getString("wallMaterial"));
-        respawnLocation = new Location(Bukkit.getWorld(config.getString("respawnLocation.world")),
-          config.getInt("respawnLocation.x"), config.getInt("respawnLocation.y"), config.getInt("respawnLocation.z"));
+        spawnLocation = new Location(Bukkit.getWorld(config.getString("spawnLocation.world")),
+          config.getInt("spawnLocation.x"), config.getInt("spawnLocation.y"), config.getInt("spawnLocation.z"));
         mapsPath = config.getString("mapsPath");
     }
 }

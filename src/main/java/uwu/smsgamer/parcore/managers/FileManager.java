@@ -2,8 +2,7 @@ package uwu.smsgamer.parcore.managers;
 
 import com.sk89q.worldedit.Vector;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
-import uwu.smsgamer.parcore.Vars;
+import uwu.smsgamer.parcore.*;
 import uwu.smsgamer.parcore.utils.MapFile;
 
 import java.io.*;
@@ -11,13 +10,28 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
 
+/**
+ * Manages the schematic files (map files).
+ */
 public class FileManager {
-    private static JavaPlugin pl;
+    /**
+     * List of the mapFiles
+     */
     private static final Map<String, MapFile> mapFiles = new HashMap<>();
+    /**
+     * separator
+     */
     private static final String sp = ":";
+    /**
+     * ParCore instance
+     */
+    private static ParCore pl;
+    /**
+     * Path to the map folder
+     */
     private static String mapPath;
 
-    public static void setup(JavaPlugin plugin) {
+    public static void setup(ParCore plugin) {
         pl = plugin;
         mapPath = pl.getDataFolder().getAbsolutePath() + "/" + Vars.mapsPath;
         try {

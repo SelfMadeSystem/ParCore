@@ -14,60 +14,126 @@ import uwu.smsgamer.parcore.utils.*;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * The manager of players. Does stuff
+ * like teleport them around, prevent
+ * block breaking/placing, prevent
+ * death, etc.
+ */
 public class PlayerManager implements Listener {
+    /**
+     * A list of players, each with an "id" determined by their join order
+     */
+    public static ArrayList<String> playerList = new ArrayList<>();
+    /**
+     * ParCore instance
+     */
     static ParCore pl;
+    /**
+     * An instance of this because this implements Listener and it needs to be in object form to listen to events
+     */
     @Getter
     static PlayerManager instance;
-    public static ArrayList<String> playerList = new ArrayList<>();
+    /**
+     * Used to store information about the player's current map situation and map limits.
+     */
     // Type: 0 making, 1 playing, 2 in spawn
     //               name              min     max     type  respawn
     static SortedMap<String, FourEntry<Vector, Vector, Byte, Location>> players = new TreeMap<>();
 
+    /**
+     * Used to set up the manager. Basically just registers events to this class object.
+     *
+     * @param parCore Main plugin class.
+     */
     public static void setup(ParCore parCore) {
         pl = parCore;
         instance = new PlayerManager();
         Bukkit.getPluginManager().registerEvents(instance, pl);
     }
 
-    public static void playerJoinedMap(Player player, Vector min, Vector max, String mapName) {
-        String playerName = player.getName();
+    /**
+     * Used when the player joins a map. It clears the area, then pastes in the map,
+     * then
+     *
+     * @param player The player that joined the map.
+     * @param min The minimum boundary.
+     * @param max The maximum boundary.
+     * @param playerName The name of the creator of the map.
+     * @param mapName The name of the map itself.
+     */
+    public static void playerJoinedMap(Player player, Vector min, Vector max, String playerName, String mapName) {
         Location respLoc = VectorUtils.toLocation(WorldManager.getWorld(), FileManager.getRespawnLocation(playerName, mapName));
+        //Gets the initial spawn location to teleport the player and to set as the respawn location for when the player dies.
         players.put(player.getName(), new FourEntry<>(null, null, (byte) 1, respLoc));
+        //Adds the player's name as key, and a new FourEntry with null as the boundaries,
+        // 1 (playing) as the type, and respLoc as the respawn location for when the player dies.
         BuildUtils.setupArena(Material.AIR, WorldManager.getWorld(), min, max);
+        //Sets up the arena by clearing everything between min & max vectors.
         try {
             SchemUtils.loadSchematic(new Location(WorldManager.getWorld(), min.getBlockX(), min.getBlockY(), min.getBlockZ()), playerName, mapName);
-        } catch (IOException e) {
-            e.printStackTrace();
+            //Pastes in the map.
+            // TODO: 2020-06-21 Test if +1+1 (x,z) offset fixes something or if it doesn't.
+        } catch (IOException e) { //Uh oh, an error has occurred!
+            e.printStackTrace(); //Prints the error to console.
             player.sendMessage(ChatColor.DARK_RED + "An unknown error occurred when loading schematic: " + playerName + ":" + mapName +
               ". If you are an admin, please check console for any errors.");
-            return;
+            //Tells the player that an error occurred when pasting in the schematic.
+            backToSpawn(player); //Sends the player back to spawn.
+            return; //Returns so that nothing else happens.
         }
-        player.setGameMode(GameMode.ADVENTURE);
-        player.getInventory().clear();
-        player.teleport(respLoc);
+        player.setGameMode(GameMode.ADVENTURE); //Sets the player in adventure so that he can't place or break any blox.
+        player.getInventory().clear(); //Clears his inventory.
+        player.teleport(respLoc); //Finally, teleports the player to the desired location.
     }
 
+    /**
+     * Sets up the build arena for the player to build his map in.
+     *
+     * @param player The player that will build the map.
+     * @param min The minimum boundary.
+     * @param max The maximum boundary.
+     */
     public static void playerMakeMap(Player player, Vector min, Vector max) {
         players.put(player.getName(), new FourEntry<>(min, max, (byte) 0, null));
-        player.setGameMode(GameMode.CREATIVE);
+        //Adds the player's name as key, and a new FourEntry with the min and max as boundaries,
+        // 0 (making) as the type, and nothing as the respawn location.
+        player.setGameMode(GameMode.CREATIVE); //Sets the player's gamemode to gmc so he can start building.
     }
 
+    /**
+     * Sends the player back to spawn.
+     *
+     * @param player The player to be sent back to spawn.
+     */
     public static void backToSpawn(Player player) {
-        players.put(player.getName(), new FourEntry<>(null, null, (byte) 2, Vars.respawnLocation));
-        player.setGameMode(GameMode.ADVENTURE);
-        player.teleport(Vars.respawnLocation);
-        player.setHealth(20);
-        player.setFoodLevel(20);
+        players.put(player.getName(), new FourEntry<>(null, null, (byte) 2, Vars.spawnLocation));
+        //Adds the player's name as key, and a new FourEntry with null boundaries,
+        // 2 (at spawn) as the type, and the spawn location as the respawn location.
+        player.setGameMode(GameMode.ADVENTURE); //Sets the player in adventure so that he can't place or break any blox.
+        player.getInventory().clear(); //Clears his inventory.
+        player.setHealth(20); //Sets player's health to 20
+        player.setFoodLevel(20); //Sets player's food level to 20
+        player.teleport(Vars.spawnLocation); //Finally, teleports the player to the desired location.
     }
 
+    /**
+     * Adds the player to the playerList if not already there and sends the player to spawn.
+     */
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         if (!playerList.contains(event.getPlayer().getName())) {
             playerList.add(event.getPlayer().getName());
-            backToSpawn(event.getPlayer());
         }
+        backToSpawn(event.getPlayer());
     }
 
+    /**
+     * Happens when the player takes damage. Cancel it if the player's at spawn
+     * or if health is less than 0 and he's playing a map. If health's less than
+     * 0 and player's playing a map, also set health to 20 and teleport him to
+     * his designated respawn location essentially doing an instant respawn.
+     */
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
         if (players.containsKey(event.getEntity().getName())) {
@@ -85,6 +151,10 @@ public class PlayerManager implements Listener {
         }
     }
 
+    /**
+     * Makes sure the player doesn't exit his designated area
+     * or teleport him to spawn if below 0 or above 258 when at spawn.
+     */
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
@@ -112,6 +182,9 @@ public class PlayerManager implements Listener {
         }
     }
 
+    /**
+     * Prevents block breaking when we don't want the player to break blocks.
+     */
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
@@ -135,6 +208,9 @@ public class PlayerManager implements Listener {
         }
     }
 
+    /**
+     * Prevents block placing when we don't want the player to break blocks.
+     */
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
