@@ -12,7 +12,9 @@ import uwu.smsgamer.parcore.*;
 import uwu.smsgamer.parcore.utils.*;
 
 import java.io.IOException;
+import java.nio.file.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The manager of players. Does stuff
@@ -21,10 +23,6 @@ import java.util.*;
  * death, etc.
  */
 public class PlayerManager implements Listener {
-    /**
-     * A list of players, each with an "id" determined by their join order
-     */
-    public static ArrayList<String> playerList = new ArrayList<>();
     /**
      * ParCore instance
      */
@@ -35,10 +33,18 @@ public class PlayerManager implements Listener {
     @Getter
     static PlayerManager instance;
     /**
+     *
+     */
+    public static String playerPath;
+    /**
+     * A list of players, each with an "id" determined by their join order
+     */
+    public static ArrayList<String> playerList = new ArrayList<>();
+    /**
      * Used to store information about the player's current map situation and map limits.
      */
     // Type: 0 making, 1 playing, 2 in spawn
-    //               name              min     max     type  respawn
+    //               name              min     max     type  respawn/czechpoint
     static SortedMap<String, FourEntry<Vector, Vector, Byte, Location>> players = new TreeMap<>();
 
     /**
@@ -49,7 +55,21 @@ public class PlayerManager implements Listener {
     public static void setup(ParCore parCore) {
         pl = parCore;
         instance = new PlayerManager();
+        playerPath = pl.getDataFolder().getAbsolutePath() + "/" + Vars.playerPath;
         Bukkit.getPluginManager().registerEvents(instance, pl);
+        try {
+            for (Path path : Files.walk(Paths.get(playerPath)).filter(Files::isRegularFile).collect(Collectors.toSet())) {
+                PPlayer.pPlayers.add(PPlayer.loadPlayer(path.getFileName().toString().split("\\.")[0]));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void done() {
+        for (PPlayer pPlayer : PPlayer.pPlayers) {
+            pPlayer.saveToFile();
+        }
     }
 
     /**
@@ -63,28 +83,40 @@ public class PlayerManager implements Listener {
      * @param mapName The name of the map itself.
      */
     public static void playerJoinedMap(Player player, Vector min, Vector max, String playerName, String mapName) {
-        Location respLoc = VectorUtils.toLocation(WorldManager.getWorld(), FileManager.getRespawnLocation(playerName, mapName));
+        Location respLoc = VectorUtils.toLocation(WorldManager.getWorld(),
+          FileManager.getRespawnLocation(playerName, mapName).add(min));
         //Gets the initial spawn location to teleport the player and to set as the respawn location for when the player dies.
         players.put(player.getName(), new FourEntry<>(null, null, (byte) 1, respLoc));
         //Adds the player's name as key, and a new FourEntry with null as the boundaries,
         // 1 (playing) as the type, and respLoc as the respawn location for when the player dies.
         BuildUtils.setupArena(Material.AIR, WorldManager.getWorld(), min, max);
         //Sets up the arena by clearing everything between min & max vectors.
+        pasteInMap(player, min, playerName, mapName); //Pastes in the map :)
+        player.setGameMode(GameMode.ADVENTURE); //Sets the player in adventure so that he can't place or break any blox.
+        player.getInventory().clear(); //Clears his inventory.
+        player.teleport(respLoc); //Finally, teleports the player to the desired location.
+    }
+
+    /**
+     * Pastes in a map for the player, whether it's for him
+     * to play on it, or for him to continue editing it.
+     *
+     * @param player The player
+     * @param place Place to paste it.
+     * @param playerName Name of creator.
+     * @param mapName Name of map.
+     */
+    public static void pasteInMap(Player player, Vector place, String playerName, String mapName) {
         try {
-            SchemUtils.loadSchematic(new Location(WorldManager.getWorld(), min.getBlockX(), min.getBlockY(), min.getBlockZ()), playerName, mapName);
+            SchemUtils.loadSchematic(new Location(WorldManager.getWorld(), place.getBlockX() + 1, place.getBlockY(), place.getBlockZ() + 1), playerName, mapName);
             //Pastes in the map.
-            // TODO: 2020-06-21 Test if +1+1 (x,z) offset fixes something or if it doesn't.
         } catch (IOException e) { //Uh oh, an error has occurred!
             e.printStackTrace(); //Prints the error to console.
             player.sendMessage(ChatColor.DARK_RED + "An unknown error occurred when loading schematic: " + playerName + ":" + mapName +
               ". If you are an admin, please check console for any errors.");
             //Tells the player that an error occurred when pasting in the schematic.
             backToSpawn(player); //Sends the player back to spawn.
-            return; //Returns so that nothing else happens.
         }
-        player.setGameMode(GameMode.ADVENTURE); //Sets the player in adventure so that he can't place or break any blox.
-        player.getInventory().clear(); //Clears his inventory.
-        player.teleport(respLoc); //Finally, teleports the player to the desired location.
     }
 
     /**
@@ -122,9 +154,10 @@ public class PlayerManager implements Listener {
      */
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        if (!playerList.contains(event.getPlayer().getName())) {
+        if (!playerList.contains(event.getPlayer().getName()))
             playerList.add(event.getPlayer().getName());
-        }
+        if (!PPlayer.contains(event.getPlayer().getName()))
+            PPlayer.pPlayers.add(PPlayer.loadPlayer(event.getPlayer().getName()));
         backToSpawn(event.getPlayer());
     }
 

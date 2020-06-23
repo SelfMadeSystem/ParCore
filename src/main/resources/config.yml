@@ -9,3 +9,4 @@ spawnLocation:
   y: 129
   z: 0
 mapsPath: "maps/"
+playerPath: "players/"

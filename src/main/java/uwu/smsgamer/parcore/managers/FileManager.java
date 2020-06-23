@@ -58,12 +58,16 @@ public class FileManager {
         return mapPath + player + sp + map + ".schematic";
     }
 
-    public static String getYamlName(String player, String map) {
+    public static String getYamlMapName(String player, String map) {
         return mapPath + player + sp + map + ".yml";
     }
 
+    public static String getYamlPlayerName(String player) {
+        return PlayerManager.playerPath + player + ".yml";
+    }
+
     public static Vector getRespawnLocation(String player, String map) {
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(new File(getYamlName(player, map)));
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(new File(getYamlMapName(player, map)));
         return new Vector(config.getInt("x"), config.getInt("y"), config.getInt("z"));
     }
 

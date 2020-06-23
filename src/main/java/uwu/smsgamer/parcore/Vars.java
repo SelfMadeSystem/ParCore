@@ -27,6 +27,10 @@ public class Vars {
      * Directory where maps are held
      */
     public static String mapsPath = "maps/";
+    /**
+     * Directory where player data are held
+     */
+    public static String playerPath = "players/";
 
     /**
      * Sets up all the variables by first getting the config,
@@ -41,5 +45,6 @@ public class Vars {
         spawnLocation = new Location(Bukkit.getWorld(config.getString("spawnLocation.world")),
           config.getInt("spawnLocation.x"), config.getInt("spawnLocation.y"), config.getInt("spawnLocation.z"));
         mapsPath = config.getString("mapsPath");
+        playerPath = config.getString("playerPath");
     }
 }

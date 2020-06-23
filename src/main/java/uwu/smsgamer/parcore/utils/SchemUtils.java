@@ -51,7 +51,26 @@ public class SchemUtils {
         config.set("x", spawnLocation.getBlockX() + 0.5); //Sets "x" to the block position + 0.5 of spawnLocation.
         config.set("y", spawnLocation.getBlockY()); //Sets "y" to the block position of spawnLocation.
         config.set("z", spawnLocation.getBlockZ() + 0.5); //Sets "z" to the block position + 0.5 of spawnLocation.
-        config.save(new File(FileManager.getYamlName(playerName, mapName))); //And finally, we save the config file.
+        config.save(new File(FileManager.getYamlMapName(playerName, mapName))); //And finally, we save the config file.
+    }
+
+    /**
+     * Deletes a schematic.
+     *
+     * @param playerName Name of the creator of the map.
+     * @param mapName Name of the map to remove.
+     */
+    public static void deleteSchematic(String playerName, String mapName) {
+        File file = new File(FileManager.getSchemaName(playerName, mapName));
+        if (file.exists()) {
+            PPlayer p = PPlayer.get(playerName);
+            if (p != null)
+                p.mapCount--;
+            file.delete();
+        }
+        file = new File(FileManager.getYamlMapName(playerName, mapName));
+        if (file.exists())
+            file.delete();
     }
 
     /**

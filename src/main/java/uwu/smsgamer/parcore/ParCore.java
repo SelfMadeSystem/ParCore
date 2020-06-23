@@ -8,7 +8,7 @@ import org.bukkit.plugin.java.annotation.dependency.Dependency;
 import org.bukkit.plugin.java.annotation.plugin.*;
 import org.bukkit.plugin.java.annotation.plugin.author.Author;
 import uwu.smsgamer.parcore.managers.*;
-import uwu.smsgamer.parcore.utils.ThreadUtils;
+import uwu.smsgamer.parcore.utils.*;
 
 /**
  * Main class for this plugin.
@@ -38,6 +38,7 @@ public final class ParCore extends JavaPlugin implements Listener {
     /**Tells the WorldManager that we're disabling. Doesn't do anything atm*/
     @Override
     public void onDisable() {
+        PlayerManager.done();
         WorldManager.done();
     }
 
@@ -49,7 +50,15 @@ public final class ParCore extends JavaPlugin implements Listener {
             event.setCancelled(true);
         } else if (event.getMessage().startsWith("/pkr")) {
             String[] args = event.getMessage().split(" ");
+            WorldManager.newBuildArena(event.getPlayer(), args[1]);
+            event.setCancelled(true);
+        } else if (event.getMessage().startsWith("/play")) {
+            String[] args = event.getMessage().split(" ");
             WorldManager.newMapArena(event.getPlayer(), args[1], args[2]);
+            event.setCancelled(true);
+        } else if (event.getMessage().startsWith("/delete")) {
+            String[] args = event.getMessage().split(" ");
+            SchemUtils.deleteSchematic(event.getPlayer().getName(), args[1]);
             event.setCancelled(true);
         } else if (event.getMessage().startsWith("/save")) {
             String[] args = event.getMessage().split(" ");

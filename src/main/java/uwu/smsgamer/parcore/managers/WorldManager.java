@@ -74,6 +74,26 @@ public class WorldManager {
     }
 
     /**
+     * Sets up a build arena with a schematic already in place for the player to build his parkour map.
+     *
+     * @param player The player that this build arena belongs to.
+     */
+    public static void newBuildArena(Player player, String mapName) {
+        int last = PlayerManager.playerList.indexOf(player.getName()); //Gets the index of the player so that arenas don't overlap.
+        Vector min = new Vector((last * Vars.spacing), 0, (last * Vars.spacing)); //Gets the min vector by using the index of the player
+        // and multiplying it by the spacing set in Vars.
+        Vector max = new Vector(Vars.size.getBlockX() + (last * Vars.spacing), 255, Vars.size.getBlockZ() + (last * Vars.spacing));
+        //Gets the max vector by getting the the size set in vars and adding, the index of the player multiplied by the spacing.
+        PlayerManager.playerMakeMap(player, min, max); //Tells PlayerManager that we're making a "MakeMap" (building arena)
+        BuildUtils.setupArena(Vars.wallMaterial, world, min, max); //Sets up the arena with wallMaterial set in Vars as the wall material,
+        PlayerManager.pasteInMap(player, min, player.getName(), mapName); //Pastes in the map :)
+        // the "world" set up in the setup function, and the minimum and maximum vector positions.
+        player.setAllowFlight(true); //Sets the player to be able to fly.
+        player.setFlying(true); //Makes sure the player is flying so that he doesn't fall into the void.
+        player.teleport(new Location(world, min.getX() + 4, 128, min.getZ() + 4)); //Finally, we teleport the player there.
+    }
+
+    /**
      * Sets up a new map for the player to play.
      *
      * @param player The player.
@@ -81,7 +101,7 @@ public class WorldManager {
      * @param mapName The map name.
      */
     public static void newMapArena(Player player, String playerName, String mapName) {
-        int last = PlayerManager.playerList.indexOf(player.getName()); //Gets the index of the player so that arenas don't overlap.
+        int last = PlayerManager.playerList.indexOf(player.getName()); //Gets the index of the player so that arenas don't overlap
         Vector min = new Vector((last * Vars.spacing), 0, (last * Vars.spacing));
         Vector max = new Vector(Vars.size.getBlockX() + (last * Vars.spacing), 255, Vars.size.getBlockZ() + (last * Vars.spacing));
         PlayerManager.playerJoinedMap(player, min, max, playerName, mapName);
@@ -94,6 +114,12 @@ public class WorldManager {
      * @param mapName The name of the map.
      */
     public static void saveBuildArena(Player player, String mapName) {
+        PPlayer pPlayer = PPlayer.get(player.getName());
+        if (pPlayer.mapCount + 1 > pPlayer.maxMapCount) {
+            player.sendMessage("You have reached your maximum amount of maps! (" + pPlayer.maxMapCount + ")");
+            return;
+        }
+        pPlayer.mapCount++;
         int last = PlayerManager.playerList.indexOf(player.getName()); //Gets the index of the player so that arenas don't overlap.
         try {
             SchemUtils.saveSchematic(new Location(world, (last * Vars.spacing) + 1, 0, (last * Vars.spacing) + 1),
