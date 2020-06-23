@@ -7,7 +7,7 @@ import com.sk89q.worldedit.extent.clipboard.ClipboardFormats;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.World;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import uwu.smsgamer.parcore.managers.FileManager;
 
@@ -32,9 +32,10 @@ public class SchemUtils {
      * @param playerName Name of the player to save to.
      * @param mapName Name of the map to save to,
      * @param spawnLocation Location of the initial spawn location of this map.
+     * @param wallMaterial The material of the wall. Default's air.
      * @throws IOException if can't save file.
      */
-    public static void saveSchematic(Location loc, int x, int z, String playerName, String mapName, Vector spawnLocation) throws IOException {
+    public static void saveSchematic(Location loc, int x, int z, String playerName, String mapName, Vector spawnLocation, Material wallMaterial) throws IOException {
         File file = new File(FileManager.getSchemaName(playerName, mapName)); //Gets file that the schematic is going to be saved to.
         loc.setY(0); //Sets location to 0 since we're copying from 0-255
         Vector bot = VectorUtils.toWEVector(loc); //Sets the bottom vector as WorldEdit vector.
@@ -51,7 +52,12 @@ public class SchemUtils {
         config.set("x", spawnLocation.getBlockX() + 0.5); //Sets "x" to the block position + 0.5 of spawnLocation.
         config.set("y", spawnLocation.getBlockY()); //Sets "y" to the block position of spawnLocation.
         config.set("z", spawnLocation.getBlockZ() + 0.5); //Sets "z" to the block position + 0.5 of spawnLocation.
+        config.set("wallMaterial", wallMaterial.name()); //Sets "wallMaterial" to the wall material. (:
         config.save(new File(FileManager.getYamlMapName(playerName, mapName))); //And finally, we save the config file.
+    }
+
+    public static void saveSchematic(Location loc, int x, int z, String playerName, String mapName, Vector spawnLocation) throws IOException {
+        saveSchematic(loc, x, z, playerName, mapName, spawnLocation, Material.AIR);
     }
 
     /**

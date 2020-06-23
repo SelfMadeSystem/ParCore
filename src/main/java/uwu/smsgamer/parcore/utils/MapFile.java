@@ -1,6 +1,7 @@
 package uwu.smsgamer.parcore.utils;
 
 import lombok.*;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.Vector;
 
@@ -40,6 +41,10 @@ public class MapFile {
      */
     private Vector spawnLocation;
     /**
+     * The material to make the wall. Default's air.
+     */
+    private Material wallMaterial;
+    /**
      * The schematic file of this map
      */
     private File schem;
@@ -55,6 +60,7 @@ public class MapFile {
         description = config.getString("description");
         published = config.getBoolean("published");
         likes = new HashSet<>(config.getBooleanList("likes"));
+        wallMaterial = Material.getMaterial(config.getString("wallMaterial"));
         spawnLocation = new Vector();
     }
 

@@ -24,4 +24,9 @@ public class FourEntry<K, V, W, X> {
         w = w0;
         x = x0;
     }
+
+    @Override
+    public String toString() {
+        return "<" + k + ", " + v + ", " + w + ", " + x + ">";
+    }
 }

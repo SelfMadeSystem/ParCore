@@ -112,8 +112,9 @@ public class WorldManager {
      *
      * @param player The player.
      * @param mapName The name of the map.
+     * @param wallMaterial The material of the wall of the map.
      */
-    public static void saveBuildArena(Player player, String mapName) {
+    public static void saveBuildArena(Player player, String mapName, Material wallMaterial) {
         PPlayer pPlayer = PPlayer.get(player.getName());
         if (pPlayer.mapCount + 1 > pPlayer.maxMapCount) {
             player.sendMessage("You have reached your maximum amount of maps! (" + pPlayer.maxMapCount + ")");
@@ -122,8 +123,12 @@ public class WorldManager {
         pPlayer.mapCount++;
         int last = PlayerManager.playerList.indexOf(player.getName()); //Gets the index of the player so that arenas don't overlap.
         try {
-            SchemUtils.saveSchematic(new Location(world, (last * Vars.spacing) + 1, 0, (last * Vars.spacing) + 1),
-              Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName, new Vector(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()));
+            if (wallMaterial == null)
+                SchemUtils.saveSchematic(new Location(world, (last * Vars.spacing) + 1, 0, (last * Vars.spacing) + 1),
+                  Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName, new Vector(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()));
+            else
+                SchemUtils.saveSchematic(new Location(world, (last * Vars.spacing) + 1, 0, (last * Vars.spacing) + 1),
+                  Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName, new Vector(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()), wallMaterial);
             //Saves the schematic.
         } catch (IOException e) { //Uh oh, an error occurred!
             e.printStackTrace(); //Print the error.

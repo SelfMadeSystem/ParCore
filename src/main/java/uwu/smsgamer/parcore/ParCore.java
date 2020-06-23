@@ -1,6 +1,6 @@
 package uwu.smsgamer.parcore;
 
-import org.bukkit.Bukkit;
+import org.bukkit.*;
 import org.bukkit.event.*;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -48,25 +48,37 @@ public final class ParCore extends JavaPlugin implements Listener {
         if (event.getMessage().equalsIgnoreCase("/pkr")) {
             WorldManager.newBuildArena(event.getPlayer());
             event.setCancelled(true);
-        } else if (event.getMessage().startsWith("/pkr")) {
-            String[] args = event.getMessage().split(" ");
+            return;
+        }
+        String[] args = event.getMessage().split(" ");
+        if (args[0].equalsIgnoreCase("/pkr")) {
             WorldManager.newBuildArena(event.getPlayer(), args[1]);
             event.setCancelled(true);
-        } else if (event.getMessage().startsWith("/play")) {
-            String[] args = event.getMessage().split(" ");
+        } else if (args[0].equalsIgnoreCase("/play")) {
             WorldManager.newMapArena(event.getPlayer(), args[1], args[2]);
             event.setCancelled(true);
-        } else if (event.getMessage().startsWith("/delete")) {
-            String[] args = event.getMessage().split(" ");
+        } else if (args[0].equalsIgnoreCase("/delete")) {
             SchemUtils.deleteSchematic(event.getPlayer().getName(), args[1]);
             event.setCancelled(true);
-        } else if (event.getMessage().startsWith("/save")) {
-            String[] args = event.getMessage().split(" ");
-            WorldManager.saveBuildArena(event.getPlayer(), args[1]);
+        } else if (args[0].equalsIgnoreCase("/save")) {
+            WorldManager.saveBuildArena(event.getPlayer(), args[1], args.length == 2 ? Material.AIR : Material.getMaterial(args[2]));
             event.setCancelled(true);
-        } else if (event.getMessage().startsWith("/b2s")) {
+        } else if (args[0].equalsIgnoreCase("/b2s")) {
             PlayerManager.backToSpawn(event.getPlayer());
             event.setCancelled(true);
+        } else if (args[0].equalsIgnoreCase("/pkrd")) {
+            event.setCancelled(true);
+            if (args.length == 1) {
+                event.getPlayer().sendMessage(PlayerManager.playerList.toString());
+            } else {
+                if (args[1].equalsIgnoreCase("playerlist")) {
+                    event.getPlayer().sendMessage(PlayerManager.playerList.toString());
+                } else if (args[1].equalsIgnoreCase("players")) {
+                    event.getPlayer().sendMessage(PlayerManager.players.toString());
+                } else if (args[1].equalsIgnoreCase("pPlayers")) {
+                    event.getPlayer().sendMessage(PPlayer.pPlayers.toString());
+                }
+            }
         }
     }
 }

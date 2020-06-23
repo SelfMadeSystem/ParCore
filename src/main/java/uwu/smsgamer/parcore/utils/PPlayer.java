@@ -94,4 +94,9 @@ public class PPlayer {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public String toString() {
+        return "(" + name + ":" + mapCount + ":" + maxMapCount + "<" + completedMaps + ">)";
+    }
 }

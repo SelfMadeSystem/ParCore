@@ -45,7 +45,7 @@ public class PlayerManager implements Listener {
      */
     // Type: 0 making, 1 playing, 2 in spawn
     //               name              min     max     type  respawn/czechpoint
-    static SortedMap<String, FourEntry<Vector, Vector, Byte, Location>> players = new TreeMap<>();
+    public static SortedMap<String, FourEntry<Vector, Vector, Byte, Location>> players = new TreeMap<>();
 
     /**
      * Used to set up the manager. Basically just registers events to this class object.
@@ -89,12 +89,12 @@ public class PlayerManager implements Listener {
         players.put(player.getName(), new FourEntry<>(null, null, (byte) 1, respLoc));
         //Adds the player's name as key, and a new FourEntry with null as the boundaries,
         // 1 (playing) as the type, and respLoc as the respawn location for when the player dies.
-        BuildUtils.setupArena(Material.AIR, WorldManager.getWorld(), min, max);
+        BuildUtils.setupArena(FileManager.getMapFile(playerName, mapName).getWallMaterial(), WorldManager.getWorld(), min, max);
         //Sets up the arena by clearing everything between min & max vectors.
         pasteInMap(player, min, playerName, mapName); //Pastes in the map :)
         player.setGameMode(GameMode.ADVENTURE); //Sets the player in adventure so that he can't place or break any blox.
         player.getInventory().clear(); //Clears his inventory.
-        player.teleport(respLoc); //Finally, teleports the player to the desired location.
+        respawn(player); //Finally, teleports the player to the desired location.
     }
 
     /**
@@ -149,6 +149,15 @@ public class PlayerManager implements Listener {
         player.teleport(Vars.spawnLocation); //Finally, teleports the player to the desired location.
     }
 
+    public static void respawn(Player player) {
+        if (players.containsKey(player.getName())) {
+            Location loc = players.get(player.getName()).getX();
+            player.teleport(new Location(loc.getWorld(), loc.getX() + 0.5, loc.getY(), loc.getZ() + 0.5));
+            player.setHealth(20);
+            player.setFoodLevel(20);
+        }
+    }
+
     /**
      * Adds the player to the playerList if not already there and sends the player to spawn.
      */
@@ -176,9 +185,10 @@ public class PlayerManager implements Listener {
             }
             if (entry.getW() == 1) {
                 if ((((Player) event.getEntity()).getHealth() - event.getDamage()) <= 0) {
+                    Player p = ((Player) event.getEntity());
                     event.setCancelled(true);
-                    ((Player) event.getEntity()).setHealth(20);
-                    event.getEntity().teleport(players.get(event.getEntity().getName()).getX());
+                    p.setHealth(20);
+                    respawn(p);
                 }
             }
         }
@@ -204,7 +214,11 @@ public class PlayerManager implements Listener {
                   event.getTo().getY() < -4 ||
                   event.getTo().getY() > 260) {
                     event.setCancelled(true);
-                    event.getPlayer().sendMessage("You are not leave the designated arena!");
+                    event.getPlayer().sendMessage("You are not to leave the designated arena!");
+                }
+            } else if (entry.getW() == 1) {
+                if (event.getTo().getY() < -4) {
+                    respawn(event.getPlayer());
                 }
             } else if (entry.getW() == 2) {
                 event.getPlayer().setFoodLevel(20);
