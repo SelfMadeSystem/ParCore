@@ -33,6 +33,10 @@ public class MapFile {
      */
     private boolean published;
     /**
+     * Whether or not it's completed by the creator
+     */
+    private boolean verified;
+    /**
      * The likes this map got
      */
     private Set<Boolean> likes;
@@ -61,6 +65,7 @@ public class MapFile {
         published = config.getBoolean("published");
         likes = new HashSet<>(config.getBooleanList("likes"));
         wallMaterial = Material.getMaterial(config.getString("wallMaterial"));
+        verified = config.getBoolean("verified");
         spawnLocation = new Vector();
     }
 

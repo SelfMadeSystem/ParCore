@@ -43,9 +43,7 @@ public class PlayerManager implements Listener {
     /**
      * Used to store information about the player's current map situation and map limits.
      */
-    // Type: 0 making, 1 playing, 2 in spawn
-    //               name              min     max     type  respawn/czechpoint
-    public static SortedMap<String, FourEntry<Vector, Vector, Byte, Location>> players = new TreeMap<>();
+    public static SortedMap<String, PlayerInfo> players = new TreeMap<>();
 
     /**
      * Used to set up the manager. Basically just registers events to this class object.
@@ -82,11 +80,12 @@ public class PlayerManager implements Listener {
      * @param playerName The name of the creator of the map.
      * @param mapName The name of the map itself.
      */
-    public static void playerJoinedMap(Player player, Vector min, Vector max, String playerName, String mapName) {
+    public static void playerJoinedMap(Player player, Vector min, Vector max, String playerName, String mapName, boolean... placeholder) {
         Location respLoc = VectorUtils.toLocation(WorldManager.getWorld(),
           FileManager.getRespawnLocation(playerName, mapName).add(min));
         //Gets the initial spawn location to teleport the player and to set as the respawn location for when the player dies.
-        players.put(player.getName(), new FourEntry<>(null, null, (byte) 1, respLoc));
+        players.put(player.getName(), new PlayerInfo(null, null,
+          placeholder.length == 0 ? PlayerInfo.Mode.PLAYING : PlayerInfo.Mode.TESTING, respLoc, playerName + ":" + mapName));
         //Adds the player's name as key, and a new FourEntry with null as the boundaries,
         // 1 (playing) as the type, and respLoc as the respawn location for when the player dies.
         BuildUtils.setupArena(FileManager.getMapFile(playerName, mapName).getWallMaterial(), WorldManager.getWorld(), min, max);
@@ -127,7 +126,7 @@ public class PlayerManager implements Listener {
      * @param max The maximum boundary.
      */
     public static void playerMakeMap(Player player, Vector min, Vector max) {
-        players.put(player.getName(), new FourEntry<>(min, max, (byte) 0, null));
+        players.put(player.getName(), new PlayerInfo(min, max, PlayerInfo.Mode.MAKE, null, null));
         //Adds the player's name as key, and a new FourEntry with the min and max as boundaries,
         // 0 (making) as the type, and nothing as the respawn location.
         player.setGameMode(GameMode.CREATIVE); //Sets the player's gamemode to gmc so he can start building.
@@ -139,7 +138,7 @@ public class PlayerManager implements Listener {
      * @param player The player to be sent back to spawn.
      */
     public static void backToSpawn(Player player) {
-        players.put(player.getName(), new FourEntry<>(null, null, (byte) 2, Vars.spawnLocation));
+        players.put(player.getName(), new PlayerInfo(null, null, PlayerInfo.Mode.SPAWN, Vars.spawnLocation, null));
         //Adds the player's name as key, and a new FourEntry with null boundaries,
         // 2 (at spawn) as the type, and the spawn location as the respawn location.
         player.setGameMode(GameMode.ADVENTURE); //Sets the player in adventure so that he can't place or break any blox.
@@ -151,7 +150,7 @@ public class PlayerManager implements Listener {
 
     public static void respawn(Player player) {
         if (players.containsKey(player.getName())) {
-            Location loc = players.get(player.getName()).getX();
+            Location loc = players.get(player.getName()).getRespLoc();
             player.teleport(new Location(loc.getWorld(), loc.getX() + 0.5, loc.getY(), loc.getZ() + 0.5));
             player.setHealth(20);
             player.setFoodLevel(20);
@@ -179,11 +178,11 @@ public class PlayerManager implements Listener {
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
         if (players.containsKey(event.getEntity().getName())) {
-            FourEntry<Vector, Vector, Byte, Location> entry = players.get(event.getEntity().getName());
-            if (entry.getW() == 2) {
+            PlayerInfo entry = players.get(event.getEntity().getName());
+            if (entry.getMode().noBOrD) {
                 event.setCancelled(true);
             }
-            if (entry.getW() == 1) {
+            if (entry.getMode().playing) {
                 if ((((Player) event.getEntity()).getHealth() - event.getDamage()) <= 0) {
                     Player p = ((Player) event.getEntity());
                     event.setCancelled(true);
@@ -201,12 +200,12 @@ public class PlayerManager implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
-            FourEntry<Vector, Vector, Byte, Location> entry = players.get(event.getPlayer().getName());
-            if (entry.getW() == 0) {
-                if (entry.getK() == null || entry.getV() == null)
+            PlayerInfo entry = players.get(event.getPlayer().getName());
+            if (entry.getMode().limitH) {
+                if (entry.getMin() == null || entry.getMax() == null)
                     return;
-                Vector min = entry.getK();
-                Vector max = entry.getV();
+                Vector min = entry.getMin();
+                Vector max = entry.getMax();
                 if (event.getTo().getX() <= min.getBlockX() ||
                   event.getTo().getZ() <= min.getBlockZ() ||
                   event.getTo().getX() >= max.getBlockX() ||
@@ -216,15 +215,31 @@ public class PlayerManager implements Listener {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage("You are not to leave the designated arena!");
                 }
-            } else if (entry.getW() == 1) {
-                if (event.getTo().getY() < -4) {
-                    respawn(event.getPlayer());
-                }
-            } else if (entry.getW() == 2) {
-                event.getPlayer().setFoodLevel(20);
-                if (event.getTo().getY() < 0 || event.getTo().getY() > 258) {
+            }
+            if (entry.getMode().playing) {
+                if (event.getPlayer().getLocation().getBlock().getType().equals(Material.IRON_PLATE)) {
+                    Location loc = event.getPlayer().getLocation().getBlock().getLocation();
+                    Location xloc = entry.getRespLoc().getBlock().getLocation();
+                    if (!loc.equals(xloc)) {
+                        entry.setRespLoc(loc);
+                        event.getPlayer().sendMessage("Checkpoint reached.");
+                    }
+                } else if (event.getPlayer().getLocation().getBlock().getType().equals(Material.GOLD_PLATE)) {
+                    if (entry.getMode().equals(PlayerInfo.Mode.PLAYING)) {
+                        String[] st = entry.getMap().split(":");
+                        FileManager.getMapFile(st[0], st[1]).setPublished(true);
+                        event.getPlayer().sendMessage("Map verified. (:");
+                    } else
+                        event.getPlayer().sendMessage("You have reached the end! This doesn't do anything for now and just takes you back to spawn.");
+
                     backToSpawn(event.getPlayer());
                 }
+            } else {
+                event.getPlayer().setFoodLevel(20);
+                event.getPlayer().setHealth(20);
+            }
+            if (event.getTo().getY() < -4 || event.getTo().getY() > 258) {
+                respawn(event.getPlayer());
             }
         }
     }
@@ -235,16 +250,16 @@ public class PlayerManager implements Listener {
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
-            FourEntry<Vector, Vector, Byte, Location> entry = players.get(event.getPlayer().getName());
-            if (entry.getW() > 0) {
+            PlayerInfo entry = players.get(event.getPlayer().getName());
+            if (entry.getMode().noBOrD) {
                 event.getPlayer().sendMessage("You are not allowed to break blocks!");
                 event.setCancelled(true);
                 return;
             }
-            if (entry.getK() == null || entry.getV() == null)
+            if (entry.getMin() == null || entry.getMax() == null)
                 return;
-            Vector min = entry.getK();
-            Vector max = entry.getV();
+            Vector min = entry.getMin();
+            Vector max = entry.getMax();
             if (event.getBlock().getLocation().getX() <= min.getBlockX() ||
               event.getBlock().getLocation().getZ() <= min.getBlockZ() ||
               event.getBlock().getLocation().getX() >= max.getBlockX() ||
@@ -261,16 +276,16 @@ public class PlayerManager implements Listener {
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
-            FourEntry<Vector, Vector, Byte, Location> entry = players.get(event.getPlayer().getName());
-            if (entry.getW() > 0) {
+            PlayerInfo entry = players.get(event.getPlayer().getName());
+            if (entry.getMode().noBOrD) {
                 event.getPlayer().sendMessage("You are not allowed to place blocks!");
                 event.setCancelled(true);
                 return;
             }
-            if (entry.getK() == null || entry.getV() == null)
+            if (entry.getMin() == null || entry.getMax() == null)
                 return;
-            Vector min = entry.getK();
-            Vector max = entry.getV();
+            Vector min = entry.getMin();
+            Vector max = entry.getMax();
             if (event.getBlock().getLocation().getX() <= min.getBlockX() ||
               event.getBlock().getLocation().getZ() <= min.getBlockZ() ||
               event.getBlock().getLocation().getX() >= max.getBlockX() ||

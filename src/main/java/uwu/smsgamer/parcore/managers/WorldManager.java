@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import uwu.smsgamer.parcore.*;
 import uwu.smsgamer.parcore.utils.*;
 
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Manages the parkour world, i.e. sets up an arena/map, clears arenas/maps, etc.
@@ -116,9 +116,11 @@ public class WorldManager {
      */
     public static void saveBuildArena(Player player, String mapName, Material wallMaterial) {
         PPlayer pPlayer = PPlayer.get(player.getName());
-        if (pPlayer.mapCount + 1 > pPlayer.maxMapCount) {
-            player.sendMessage("You have reached your maximum amount of maps! (" + pPlayer.maxMapCount + ")");
-            return;
+        if (!new File(FileManager.getSchemaName(player.getName(), mapName)).exists()) {
+            if (pPlayer.mapCount + 1 > pPlayer.maxMapCount) {
+                player.sendMessage("You have reached your maximum amount of maps! (" + pPlayer.maxMapCount + ")");
+                return;
+            }
         }
         pPlayer.mapCount++;
         int last = PlayerManager.playerList.indexOf(player.getName()); //Gets the index of the player so that arenas don't overlap.
