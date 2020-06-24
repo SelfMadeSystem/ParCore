@@ -151,6 +151,8 @@ public class PlayerManager implements Listener {
     public static void respawn(Player player) {
         if (players.containsKey(player.getName())) {
             Location loc = players.get(player.getName()).getRespLoc();
+            if (loc == null)
+                return;
             player.teleport(new Location(loc.getWorld(), loc.getX() + 0.5, loc.getY(), loc.getZ() + 0.5));
             player.setHealth(20);
             player.setFoodLevel(20);
@@ -214,6 +216,15 @@ public class PlayerManager implements Listener {
                   event.getTo().getY() > 260) {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage("You are not to leave the designated arena!");
+                    event.getPlayer().setAllowFlight(true);
+                    event.getPlayer().setFlying(true);
+                    Vector velocity = new Vector(
+                      MathUtils.getVariance(event.getTo().getX(), min.getBlockX(), max.getBlockX(), false, 1) * 0.2,
+                      MathUtils.getVariance(event.getTo().getY(), -2, 260, false, 1),
+                      MathUtils.getVariance(event.getTo().getZ(), min.getBlockZ(), max.getBlockZ(), false, 1) * 0.2);
+                    event.getPlayer().sendMessage(-MathUtils.getVariance(event.getTo().getY(), -2, 260, true, 1) + " " +
+                      -MathUtils.getVariance(event.getTo().getY(), -2, 260, false, 1));
+                    event.getPlayer().setVelocity(VectorUtils.toBukkitVector(velocity));
                 }
             }
             if (entry.getMode().playing) {
@@ -227,7 +238,7 @@ public class PlayerManager implements Listener {
                 } else if (event.getPlayer().getLocation().getBlock().getType().equals(Material.GOLD_PLATE)) {
                     if (entry.getMode().equals(PlayerInfo.Mode.PLAYING)) {
                         String[] st = entry.getMap().split(":");
-                        FileManager.getMapFile(st[0], st[1]).setPublished(true);
+                        FileManager.getMapFile(st[0], st[1]).setVerified(true);
                         event.getPlayer().sendMessage("Map verified. (:");
                     } else
                         event.getPlayer().sendMessage("You have reached the end! This doesn't do anything for now and just takes you back to spawn.");
@@ -238,7 +249,7 @@ public class PlayerManager implements Listener {
                 event.getPlayer().setFoodLevel(20);
                 event.getPlayer().setHealth(20);
             }
-            if (event.getTo().getY() < -4 || event.getTo().getY() > 258) {
+            if (entry.getMode().noBOrD && event.getTo().getY() < -4 || event.getTo().getY() > 258) {
                 respawn(event.getPlayer());
             }
         }

@@ -30,7 +30,7 @@ public class PlayerInfo {
     }
 
     public enum Mode {
-        SPAWN(true, false, true),
+        SPAWN(true, false, false),
         MAKE(false, true, false),
         PLAYING(true, false, true),
         TESTING(true, false, true);
