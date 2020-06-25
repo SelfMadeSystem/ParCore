@@ -10,6 +10,8 @@ import org.bukkit.plugin.java.annotation.plugin.author.Author;
 import uwu.smsgamer.parcore.managers.*;
 import uwu.smsgamer.parcore.utils.*;
 
+import java.util.stream.Collectors;
+
 /**
  * Main class for this plugin.
  */
@@ -66,6 +68,7 @@ public final class ParCore extends JavaPlugin implements Listener {
             event.setCancelled(true);
         } else if (args[0].equalsIgnoreCase("/test")) {
             WorldManager.newMapArena(event.getPlayer(), event.getPlayer().getName(), args[1], false);
+            event.getPlayer().sendMessage("Testing map: " + args[1]);
             event.setCancelled(true);
         } else if (args[0].equalsIgnoreCase("/upload")) {
             MapFile file = FileManager.getMapFile(event.getPlayer().getName(), args[1]);
@@ -81,10 +84,12 @@ public final class ParCore extends JavaPlugin implements Listener {
             SchemUtils.deleteSchematic(event.getPlayer().getName(), args[1]);
             event.setCancelled(true);
         } else if (args[0].equalsIgnoreCase("/save")) {
-            WorldManager.saveBuildArena(event.getPlayer(), args[1], args.length == 2 ? Material.AIR : Material.getMaterial(args[2]));
+            if (WorldManager.saveBuildArena(event.getPlayer(), args[1], args.length == 2 ? Material.AIR : Material.getMaterial(args[2])))
+                event.getPlayer().sendMessage("Saved!");
             event.setCancelled(true);
         } else if (args[0].equalsIgnoreCase("/b2s")) {
             PlayerManager.backToSpawn(event.getPlayer());
+            event.getPlayer().sendMessage("Sent back to spawn.");
             event.setCancelled(true);
         } else if (args[0].equalsIgnoreCase("/pkrd")) {
             event.setCancelled(true);
@@ -98,7 +103,15 @@ public final class ParCore extends JavaPlugin implements Listener {
                 } else if (args[1].equalsIgnoreCase("pPlayers")) {
                     event.getPlayer().sendMessage(PPlayer.pPlayers.toString());
                 } else if (args[1].equalsIgnoreCase("maps")) {
-                    event.getPlayer().sendMessage(FileManager.mapFiles.toString());
+                    if (args.length == 2) {
+                        event.getPlayer().sendMessage(FileManager.mapFiles.toString());
+                    } else if (args[2].equalsIgnoreCase("all")) {
+                        event.getPlayer().sendMessage(FileManager.mapFiles.toString());
+                    } else if (args[2].equalsIgnoreCase("name")) {
+                        event.getPlayer().sendMessage(FileManager.mapFiles.values().stream().map(mapFile -> mapFile.getPlayer() + ";" + mapFile.getName()).collect(Collectors.joining("\n")));
+                    } else if (args[2].equalsIgnoreCase("vap")) { //verified and published
+                        event.getPlayer().sendMessage(FileManager.mapFiles.values().stream().map(m -> m.getPlayer() + ";" + m.getName() + ":" + m.isVerified() + ":" + m.isPublished()).collect(Collectors.joining("\n")));
+                    }
                 }
             }
         }

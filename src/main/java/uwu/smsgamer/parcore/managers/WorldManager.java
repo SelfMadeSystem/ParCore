@@ -113,16 +113,21 @@ public class WorldManager {
      * @param player The player.
      * @param mapName The name of the map.
      * @param wallMaterial The material of the wall of the map.
+     * @return Whether it was successful or not.
      */
-    public static void saveBuildArena(Player player, String mapName, Material wallMaterial) {
+    public static boolean saveBuildArena(Player player, String mapName, Material wallMaterial) {
         PPlayer pPlayer = PPlayer.get(player.getName());
         if (!new File(FileManager.getSchemaName(player.getName(), mapName)).exists()) {
             if (pPlayer.mapCount + 1 > pPlayer.maxMapCount) {
                 player.sendMessage("You have reached your maximum amount of maps! (" + pPlayer.maxMapCount + ")");
-                return;
+                return false;
             }
+            pPlayer.mapCount++;
         }
-        pPlayer.mapCount++;
+        if (!mapName.matches("[a-zA-Z0-9]+")) {
+            player.sendMessage("Name must be alphanumeric!");
+            return false;
+        }
         int last = PlayerManager.playerList.indexOf(player.getName()); //Gets the index of the player so that arenas don't overlap.
         try {
             if (wallMaterial == null)
@@ -138,5 +143,6 @@ public class WorldManager {
               ". If you are an admin, please check console for any errors.");
             //Tell the player that an error occurred.
         }
+        return true;
     }
 }

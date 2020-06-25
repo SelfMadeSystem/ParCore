@@ -23,22 +23,21 @@ public class FileManager {
      */
     private static final String sp = ":";
     /**
-     * ParCore instance
-     */
-    private static ParCore pl;
-    /**
      * Path to the map folder
      */
     private static String mapPath;
 
     public static void setup(ParCore plugin) {
-        pl = plugin;
-        mapPath = pl.getDataFolder().getAbsolutePath() + "/" + Vars.mapsPath;
+        mapPath = plugin.getDataFolder().getAbsolutePath() + "/" + Vars.mapsPath;
         try {
+            System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
             for (String st : getAllSchemaNames()) {
                 String[] strings = st.split(sp);
-                mapFiles.put(st, getMapFile(strings[0], strings[1].split("\\.")[0]));
+                System.out.println(st + "\n" + sp + "\n" + Arrays.toString(strings) + "\n" + Arrays.toString(strings[1].split("\\.")));
+                /*mapFiles.put(st, */
+                getMapFile(strings[0], strings[1].split("\\.")[0]);
             }
+            System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -83,7 +82,8 @@ public class FileManager {
 
     public static List<String> getAllSchemaNames() throws IOException {
         Stream<Path> walk = Files.walk(Paths.get(mapPath));
-        return walk.filter(Files::isRegularFile)
-          .map(Path::toString).collect(Collectors.toList());
+        return walk.filter(Files::isRegularFile).map(Path::getFileName).filter(path ->
+          path.getFileName().toString().endsWith(".yml")
+        ).map(Path::toString).collect(Collectors.toList());
     }
 }
