@@ -1,7 +1,5 @@
 package uwu.smsgamer.parcore.utils;
 
-import org.bukkit.Bukkit;
-
 public class MathUtils {
     /**
      * Gets the variance I guess.
@@ -19,7 +17,6 @@ public class MathUtils {
      * less than v, return diff / v.
      */
     public static double getVariance(double p, double m, boolean r, double v) {
-        Bukkit.broadcastMessage(p + " " + m + " " + r + " " + (r ? p <= m : p >= m));
         if (r ? p <= m : p >= m) return 1;
         double d = Math.abs(p - m);
         return d > v ? 0 : d / v;

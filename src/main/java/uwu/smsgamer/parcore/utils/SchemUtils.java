@@ -8,7 +8,6 @@ import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.World;
 import org.bukkit.*;
-import org.bukkit.configuration.file.YamlConfiguration;
 import uwu.smsgamer.parcore.managers.FileManager;
 
 import java.io.*;
@@ -43,7 +42,7 @@ public class SchemUtils {
         CuboidRegion region = new CuboidRegion((World) new BukkitWorld(loc.getWorld()), bot, top); //Makes a worldedit region from those vectors & world of loc.
         Schematic schem = new Schematic(region); //Makes a schematic out of that region.
         schem.save(file, ClipboardFormat.SCHEMATIC); //Saves the schematic to that file we initialized at the beginning.
-        YamlConfiguration config = new YamlConfiguration(); //Makes a new yaml config.
+        /*YamlConfiguration config = new YamlConfiguration(); //Makes a new yaml config.
         config.set("player", playerName); //Sets "player" to the playerName
         config.set("name", mapName); //Sets "name" to the mapName
         config.set("description", ""); //Sets "description" to nothing since it's unused, but still needed to be loaded in the FileManager.
@@ -53,7 +52,18 @@ public class SchemUtils {
         config.set("y", spawnLocation.getBlockY()); //Sets "y" to the block position of spawnLocation.
         config.set("z", spawnLocation.getBlockZ() + 0.5); //Sets "z" to the block position + 0.5 of spawnLocation.
         config.set("wallMaterial", wallMaterial.name()); //Sets "wallMaterial" to the wall material. (:
-        config.save(new File(FileManager.getYamlMapName(playerName, mapName))); //And finally, we save the config file.
+        config.save(new File(FileManager.getYamlMapName(playerName, mapName))); //And finally, we save the config file.*/
+        MapFile mf = FileManager.getMapFile(playerName, mapName); //mf doesn't stand for mother fucker
+        mf.setPlayer(playerName);
+        mf.setName(mapName);
+        mf.setDescription("");
+        mf.setLikes(new HashSet<>());
+        mf.setSpawnLocation(new org.bukkit.util.Vector(spawnLocation.getBlockX() + 0.5, spawnLocation.getBlockY(), spawnLocation.getBlockZ() + 0.5));
+        mf.setWallMaterial(wallMaterial);
+        mf.setPublished(false);
+        mf.setVerified(false);
+        mf.saveToFile();
+        FileManager.mapFiles.put(playerName + ":" + mapName, mf);
     }
 
     public static void saveSchematic(Location loc, int x, int z, String playerName, String mapName, Vector spawnLocation) throws IOException {
@@ -77,6 +87,7 @@ public class SchemUtils {
         file = new File(FileManager.getYamlMapName(playerName, mapName));
         if (file.exists())
             file.delete();
+        FileManager.mapFiles.remove(playerName + ":" + mapName);
     }
 
     /**

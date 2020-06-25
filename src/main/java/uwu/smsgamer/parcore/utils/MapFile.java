@@ -4,8 +4,9 @@ import lombok.*;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.Vector;
+import uwu.smsgamer.parcore.managers.FileManager;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -81,5 +82,39 @@ public class MapFile {
         published = config.getBoolean("published");
         likes = new HashSet<>(config.getBooleanList("likes"));
         spawnLocation = new Vector();
+    }
+
+    @Override
+    public String toString() {
+        return "MapFile{" +
+          "player='" + player + '\'' +
+          ", name='" + name + '\'' +
+          ", description='" + description + '\'' +
+          ", published=" + published +
+          ", verified=" + verified +
+          ", likes=" + likes +
+          ", spawnLocation=" + spawnLocation +
+          ", wallMaterial=" + wallMaterial +
+          ", schem=" + schem +
+          '}';
+    }
+
+    public void saveToFile() {
+        YamlConfiguration config = new YamlConfiguration();
+        config.set("player", player); //Sets "player" to player
+        config.set("name", name); //Sets "name" to the name
+        config.set("description", description); //Sets "description" to nothing since it's unused, but still needed to be loaded in the FileManager.
+        config.set("verified", verified); //Sets "verified" to false since it's unused, but still needed to be loaded in the FileManager.
+        config.set("published", published); //Sets "published" to false since it's unused, but still needed to be loaded in the FileManager.
+        config.set("likes", new ArrayList<Boolean>()); //Sets "likes" to an empty array since it's unused, but still needed to be loaded in the FileManager.
+        config.set("x", spawnLocation.getBlockX() + 0.5); //Sets "x" to the block position + 0.5 of spawnLocation.
+        config.set("y", spawnLocation.getBlockY()); //Sets "y" to the block position of spawnLocation.
+        config.set("z", spawnLocation.getBlockZ() + 0.5); //Sets "z" to the block position + 0.5 of spawnLocation.
+        config.set("wallMaterial", wallMaterial.name()); //Sets "wallMaterial" to the wall material. (:
+        try {
+            config.save(FileManager.getYamlMapName(player, name));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -40,6 +40,7 @@ public final class ParCore extends JavaPlugin implements Listener {
     public void onDisable() {
         PlayerManager.done();
         WorldManager.done();
+        FileManager.done();
     }
 
     /**TEMPORARY housing of commands to test shit.*/
@@ -55,7 +56,26 @@ public final class ParCore extends JavaPlugin implements Listener {
             WorldManager.newBuildArena(event.getPlayer(), args[1]);
             event.setCancelled(true);
         } else if (args[0].equalsIgnoreCase("/play")) {
-            WorldManager.newMapArena(event.getPlayer(), args[1], args[2]);
+            MapFile file = FileManager.getMapFile(args[1], args[2]);
+            if (file.isPublished()) {
+                event.getPlayer().sendMessage("Have fun!");
+                WorldManager.newMapArena(event.getPlayer(), args[1], args[2]);
+            } else {
+                event.getPlayer().sendMessage("Map not published!");
+            }
+            event.setCancelled(true);
+        } else if (args[0].equalsIgnoreCase("/test")) {
+            WorldManager.newMapArena(event.getPlayer(), event.getPlayer().getName(), args[1], false);
+            event.setCancelled(true);
+        } else if (args[0].equalsIgnoreCase("/upload")) {
+            MapFile file = FileManager.getMapFile(event.getPlayer().getName(), args[1]);
+            if (file.isVerified()) {
+                file.setPublished(true);
+                event.getPlayer().sendMessage("Oki Doki!");
+            } else {
+                WorldManager.newMapArena(event.getPlayer(), event.getPlayer().getName(), args[1], true);
+                event.getPlayer().sendMessage("Verify first!");
+            }
             event.setCancelled(true);
         } else if (args[0].equalsIgnoreCase("/delete")) {
             SchemUtils.deleteSchematic(event.getPlayer().getName(), args[1]);
@@ -77,6 +97,8 @@ public final class ParCore extends JavaPlugin implements Listener {
                     event.getPlayer().sendMessage(PlayerManager.players.toString());
                 } else if (args[1].equalsIgnoreCase("pPlayers")) {
                     event.getPlayer().sendMessage(PPlayer.pPlayers.toString());
+                } else if (args[1].equalsIgnoreCase("maps")) {
+                    event.getPlayer().sendMessage(FileManager.mapFiles.toString());
                 }
             }
         }

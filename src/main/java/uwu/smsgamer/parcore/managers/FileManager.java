@@ -17,7 +17,7 @@ public class FileManager {
     /**
      * List of the mapFiles
      */
-    private static final Map<String, MapFile> mapFiles = new HashMap<>();
+    public static final Map<String, MapFile> mapFiles = new HashMap<>();
     /**
      * separator
      */
@@ -44,14 +44,24 @@ public class FileManager {
         }
     }
 
+    public static void done() {
+        for (Map.Entry<String, MapFile> file : mapFiles.entrySet()) {
+            file.getValue().saveToFile();
+        }
+    }
+
     public static File getSchemaFile(String player, String map) {
         MapFile mF = mapFiles.get(player + sp + map);
         return mF != null ? mF.getSchem() : new File(mapPath, player + sp + map + ".schematic");
     }
 
     public static MapFile getMapFile(String player, String map) {
-        return new MapFile(new File(pl.getDataFolder(), player + sp + map + ".schematic"),
+        if (mapFiles.containsKey(player + sp + map))
+            return mapFiles.get(player + sp + map);
+        MapFile mapFile = new MapFile(new File(mapPath, player + sp + map + ".schematic"),
           YamlConfiguration.loadConfiguration(new File(mapPath, player + sp + map + ".yml")));
+        mapFiles.put(player + sp + map, mapFile);
+        return mapFile;
     }
 
     public static String getSchemaName(String player, String map) {

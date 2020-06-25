@@ -33,7 +33,8 @@ public class PlayerInfo {
         SPAWN(true, false, false),
         MAKE(false, true, false),
         PLAYING(true, false, true),
-        TESTING(true, false, true);
+        TESTING(true, false, true),
+        VERIFY(true, false, true);
         public boolean noBOrD; //No Block Or Damage
         public boolean limitH; //limit horizontal. Vertical is always limited
         public boolean playing; //Respawn on death

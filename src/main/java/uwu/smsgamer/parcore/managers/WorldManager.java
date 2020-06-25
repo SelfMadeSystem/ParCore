@@ -100,11 +100,11 @@ public class WorldManager {
      * @param playerName The name of the creator of the map.
      * @param mapName The map name.
      */
-    public static void newMapArena(Player player, String playerName, String mapName) {
+    public static void newMapArena(Player player, String playerName, String mapName, boolean... placeholder) {
         int last = PlayerManager.playerList.indexOf(player.getName()); //Gets the index of the player so that arenas don't overlap
         Vector min = new Vector((last * Vars.spacing), 0, (last * Vars.spacing));
         Vector max = new Vector(Vars.size.getBlockX() + (last * Vars.spacing), 255, Vars.size.getBlockZ() + (last * Vars.spacing));
-        PlayerManager.playerJoinedMap(player, min, max, playerName, mapName);
+        PlayerManager.playerJoinedMap(player, min, max, playerName, mapName, placeholder);
     }
 
     /**

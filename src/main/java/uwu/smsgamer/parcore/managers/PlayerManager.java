@@ -85,7 +85,7 @@ public class PlayerManager implements Listener {
           FileManager.getRespawnLocation(playerName, mapName).add(min));
         //Gets the initial spawn location to teleport the player and to set as the respawn location for when the player dies.
         players.put(player.getName(), new PlayerInfo(null, null,
-          placeholder.length == 0 ? PlayerInfo.Mode.PLAYING : PlayerInfo.Mode.TESTING, respLoc, playerName + ":" + mapName));
+          placeholder.length == 0 ? PlayerInfo.Mode.PLAYING : (placeholder[0] ? PlayerInfo.Mode.VERIFY : PlayerInfo.Mode.TESTING), respLoc, playerName + ":" + mapName));
         //Adds the player's name as key, and a new FourEntry with null as the boundaries,
         // 1 (playing) as the type, and respLoc as the respawn location for when the player dies.
         BuildUtils.setupArena(FileManager.getMapFile(playerName, mapName).getWallMaterial(), WorldManager.getWorld(), min, max);
@@ -236,10 +236,15 @@ public class PlayerManager implements Listener {
                         event.getPlayer().sendMessage("Checkpoint reached.");
                     }
                 } else if (event.getPlayer().getLocation().getBlock().getType().equals(Material.GOLD_PLATE)) {
-                    if (entry.getMode().equals(PlayerInfo.Mode.PLAYING)) {
+                    if (entry.getMode().equals(PlayerInfo.Mode.TESTING)) {
                         String[] st = entry.getMap().split(":");
                         FileManager.getMapFile(st[0], st[1]).setVerified(true);
                         event.getPlayer().sendMessage("Map verified. (:");
+                    } else if (entry.getMode().equals(PlayerInfo.Mode.VERIFY)) {
+                        String[] st = entry.getMap().split(":");
+                        FileManager.getMapFile(st[0], st[1]).setVerified(true);
+                        FileManager.getMapFile(st[0], st[1]).setPublished(true);
+                        event.getPlayer().sendMessage("Map verified and uploaded. (:");
                     } else
                         event.getPlayer().sendMessage("You have reached the end! This doesn't do anything for now and just takes you back to spawn.");
 
