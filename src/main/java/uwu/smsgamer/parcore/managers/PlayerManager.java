@@ -84,7 +84,7 @@ public class PlayerManager implements Listener {
         Location respLoc = VectorUtils.toLocation(WorldManager.getWorld(),
           FileManager.getRespawnLocation(playerName, mapName).add(min));
         //Gets the initial spawn location to teleport the player and to set as the respawn location for when the player dies.
-        players.put(player.getName(), new PlayerInfo(null, null,
+        players.put(player.getName(), new PlayerInfo(min, max,
           placeholder.length == 0 ? PlayerInfo.Mode.PLAYING : (placeholder[0] ? PlayerInfo.Mode.VERIFY : PlayerInfo.Mode.TESTING), respLoc, playerName + ":" + mapName));
         //Adds the player's name as key, and a new FourEntry with null as the boundaries,
         // 1 (playing) as the type, and respLoc as the respawn location for when the player dies.
@@ -228,6 +228,9 @@ public class PlayerManager implements Listener {
                 }
             }
             if (entry.getMode().playing) {
+                if (MathUtils.approxEquals(event.getTo().getY() - event.getFrom().getY(), 0.42F, 0.05)) {
+                    entry.changeBlocks();
+                }
                 if (event.getPlayer().getLocation().getBlock().getType().equals(Material.IRON_PLATE)) {
                     Location loc = event.getPlayer().getLocation().getBlock().getLocation();
                     Location xloc = entry.getRespLoc().getBlock().getLocation();

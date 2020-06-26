@@ -26,4 +26,8 @@ public class MathUtils {
         double m = getVariance(p, max, !r, v);
         return m == 0 ? -getVariance(p, min, r, v) : m;
     }
+
+    public static boolean approxEquals(double a, double b, double eps) {
+        return Math.abs(a - b) < eps;
+    }
 }

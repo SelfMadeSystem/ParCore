@@ -67,7 +67,7 @@ public class MapFile {
         likes = new HashSet<>(config.getBooleanList("likes"));
         wallMaterial = Material.getMaterial(config.getString("wallMaterial"));
         verified = config.getBoolean("verified");
-        spawnLocation = new Vector();
+        spawnLocation = new Vector(config.getDouble("x"), config.getDouble("y"), config.getDouble("z"));
     }
 
     /**
