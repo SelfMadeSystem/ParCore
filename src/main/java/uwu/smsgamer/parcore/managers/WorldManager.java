@@ -130,12 +130,15 @@ public class WorldManager {
         }
         int last = PlayerManager.playerList.indexOf(player.getName()); //Gets the index of the player so that arenas don't overlap.
         try {
+            double s = (last * Vars.spacing);
             if (wallMaterial == null)
-                SchemUtils.saveSchematic(new Location(world, (last * Vars.spacing) + 1, 0, (last * Vars.spacing) + 1),
-                  Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName, new Vector(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()));
+                SchemUtils.saveSchematic(new Location(world, s + 1, 0, s + 1),
+                  Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName,
+                  new Vector(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()).subtract(s, 0, s));
             else
-                SchemUtils.saveSchematic(new Location(world, (last * Vars.spacing) + 1, 0, (last * Vars.spacing) + 1),
-                  Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName, new Vector(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()), wallMaterial);
+                SchemUtils.saveSchematic(new Location(world, s + 1, 0, s + 1),
+                  Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName,
+                  new Vector(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()).subtract(s, 0, s), wallMaterial);
             //Saves the schematic.
         } catch (IOException e) { //Uh oh, an error occurred!
             e.printStackTrace(); //Print the error.
