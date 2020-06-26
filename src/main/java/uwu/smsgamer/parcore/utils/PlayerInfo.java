@@ -4,7 +4,7 @@ import com.sk89q.worldedit.Vector;
 import lombok.*;
 import org.bukkit.*;
 
-import java.util.Map;
+import java.util.*;
 
 /**
  * An entry with four (yes 4) variable types kuz 2 isn't enough.
@@ -18,10 +18,11 @@ public class PlayerInfo {
     Location respLoc;
     String map;
     public final static Material redOn = Material.REDSTONE_BLOCK;
-    public final static Material redOff = Material.REDSTONE_WIRE;
+    public final static Material redOff = Material.RED_MUSHROOM;
     public final static Material greenOn = Material.EMERALD_BLOCK;
-    public final static Material greenOff = Material.SAPLING;
+    public final static Material greenOff = Material.BROWN_MUSHROOM;
     boolean switchBlocks;
+    List<Vector>[] switchBlockList = null;
 
     public PlayerInfo(Vector min, Vector max, Mode mode, Location respLoc, String map) {
         this.min = min;
@@ -30,18 +31,33 @@ public class PlayerInfo {
         this.respLoc = respLoc;
         this.map = map;
         this.switchBlocks = false;
-        this.changeBlocks();
     }
 
     public void changeBlocks() {
         if (this.min == null || this.max == null || this.respLoc == null)
             return;
         this.switchBlocks = !this.switchBlocks;
-        BuildUtils.replaceMaterials(new Entry[]{new Entry(this.switchBlocks ? redOn : greenOn, this.switchBlocks ? redOff : greenOff),
-            new Entry(this.switchBlocks ? greenOff : redOff, this.switchBlocks ? greenOn : redOn)},
-          respLoc.getWorld(),
-          min, max);
+        if (switchBlockList == null) {
+            switchBlockList = BuildUtils.getAllMaterialLocations(Arrays.asList(redOn, greenOn),
+              //new Entry[]{new Entry(this.switchBlocks ? redOn : greenOn,
+              //this.switchBlocks ? redOff : greenOff),
+              //new Entry(this.switchBlocks ? greenOff : redOff, this.switchBlocks ? greenOn : redOn)},
+              respLoc.getWorld(),
+              min, max);
+        }
+        World world = respLoc.getWorld();
+        for (int i = 0; i < switchBlockList.length; i++) {
+            List<Vector> list = switchBlockList[i];
+            for (Vector vec : list) {
+                if (i == 0) {
+                    world.getBlockAt(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ()).setType(this.switchBlocks ? redOn : redOff);
+                } else {
+                    world.getBlockAt(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ()).setType(this.switchBlocks ? greenOff : greenOn);
+                }
+            }
+        }
     }
+
 
     @AllArgsConstructor
     private static class Entry implements Map.Entry<Material, Material> {

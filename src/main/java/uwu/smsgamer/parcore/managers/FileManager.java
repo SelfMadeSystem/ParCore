@@ -30,14 +30,11 @@ public class FileManager {
     public static void setup(ParCore plugin) {
         mapPath = plugin.getDataFolder().getAbsolutePath() + "/" + Vars.mapsPath;
         try {
-            System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
             for (String st : getAllSchemaNames()) {
                 String[] strings = st.split(sp);
-                System.out.println(st + "\n" + sp + "\n" + Arrays.toString(strings) + "\n" + Arrays.toString(strings[1].split("\\.")));
                 /*mapFiles.put(st, */
                 getMapFile(strings[0], strings[1].split("\\.")[0]);
             }
-            System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

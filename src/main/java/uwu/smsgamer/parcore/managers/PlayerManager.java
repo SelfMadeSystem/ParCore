@@ -43,7 +43,7 @@ public class PlayerManager implements Listener {
     /**
      * Used to store information about the player's current map situation and map limits.
      */
-    public static SortedMap<String, PlayerInfo> players = new TreeMap<>();
+    public static TreeMap<String, PlayerInfo> players = new TreeMap<>();
 
     /**
      * Used to set up the manager. Basically just registers events to this class object.
@@ -62,6 +62,15 @@ public class PlayerManager implements Listener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        ThreadUtils.syncRep(() -> {
+            for (Map.Entry<String, PlayerInfo> entry : players.entrySet()) {
+                if (Bukkit.getPlayer(entry.getKey()).isOnline()) {
+                    if (entry.getValue().getMode().playing) {
+                        entry.getValue().changeBlocks();
+                    }
+                }
+            }
+        }, 20);//1 seconds
     }
 
     public static void done() {
@@ -94,6 +103,7 @@ public class PlayerManager implements Listener {
         player.setGameMode(GameMode.ADVENTURE); //Sets the player in adventure so that he can't place or break any blox.
         player.getInventory().clear(); //Clears his inventory.
         respawn(player); //Finally, teleports the player to the desired location.
+        players.get(player.getName()).changeBlocks(); //makes changeBlock happen
     }
 
     /**
@@ -228,9 +238,9 @@ public class PlayerManager implements Listener {
                 }
             }
             if (entry.getMode().playing) {
-                if (MathUtils.approxEquals(event.getTo().getY() - event.getFrom().getY(), 0.42F, 0.05)) {
+                /*if (MathUtils.approxEquals(event.getTo().getY() - event.getFrom().getY(), 0.42F, 0.05)) {
                     entry.changeBlocks();
-                }
+                }*/
                 if (event.getPlayer().getLocation().getBlock().getType().equals(Material.IRON_PLATE)) {
                     Location loc = event.getPlayer().getLocation().getBlock().getLocation();
                     Location xloc = entry.getRespLoc().getBlock().getLocation();
@@ -312,6 +322,15 @@ public class PlayerManager implements Listener {
                 event.setCancelled(true);
                 event.getPlayer().sendMessage("You are not allowed to place blocks beyond designated arena!");
             }
+        }
+    }
+
+    @EventHandler
+    public void onStuff(PlayerInteractEvent event) {
+        PlayerInfo entry = players.get(event.getPlayer().getName());
+        if (entry.getMode().playing) {
+            if (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK))
+                entry.changeBlocks();
         }
     }
 }

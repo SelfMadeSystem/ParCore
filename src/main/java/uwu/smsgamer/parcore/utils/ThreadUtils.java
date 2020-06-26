@@ -31,4 +31,13 @@ public class ThreadUtils {
     public static void syncExDe(Runnable runnable, long delayTicks) {
         Bukkit.getScheduler().scheduleSyncDelayedTask(pl, runnable, delayTicks);
     }
+
+    //sync repeating
+    public static void syncRep(Runnable runnable, long spacing) {
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(pl, runnable, 0, spacing);
+    }
+
+    public static void syncRep(Runnable runnable, long spacing, long delayTicks) {
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(pl, runnable, delayTicks, spacing);
+    }
 }
