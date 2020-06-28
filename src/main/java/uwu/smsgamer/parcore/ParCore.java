@@ -41,6 +41,7 @@ public final class ParCore extends JavaPlugin /*implements Listener*/ {
         FileManager.setup(this);
         WorldManager.setup(this);
         PlayerManager.setup(this);
+        GuiManager.setup(this);
         setExec("maps", new MapsCommand());
         setExec("play", new PlayCommand());
         setExec("publish", new PublishCommand());

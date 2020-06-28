@@ -1,11 +1,11 @@
 package uwu.smsgamer.parcore.utils;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 import uwu.smsgamer.parcore.Vars;
 
-public class ChatUtils {
-    public static void sendMessage(Player player, String message) {
+public class Chat {
+    public static void send(CommandSender player, String message) {
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', Vars.prefix + message));
     }
 }

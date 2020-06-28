@@ -1,5 +1,7 @@
 package uwu.smsgamer.parcore.utils;
 
+import java.util.Collection;
+
 public class MathUtils {
     /**
      * Gets the variance I guess.
@@ -29,5 +31,12 @@ public class MathUtils {
 
     public static boolean approxEquals(double a, double b, double eps) {
         return Math.abs(a - b) < eps;
+    }
+
+    public static double getRating(Collection<Boolean> booleans) {
+        double r = 0;
+        for (boolean b : booleans)
+            r += b ? 1 : -1;
+        return r;
     }
 }

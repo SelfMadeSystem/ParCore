@@ -50,5 +50,6 @@ public class Vars {
           config.getInt("spawnLocation.x"), config.getInt("spawnLocation.y"), config.getInt("spawnLocation.z"));
         mapsPath = config.getString("mapsPath");
         playerPath = config.getString("playerPath");
+        prefix = config.getString("prefix");
     }
 }

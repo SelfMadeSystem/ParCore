@@ -10,3 +10,4 @@ spawnLocation:
   z: 0
 mapsPath: "maps/"
 playerPath: "players/"
+prefix: "&b&lParkour&7>> "

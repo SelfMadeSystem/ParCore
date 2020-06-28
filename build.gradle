@@ -18,8 +18,13 @@ repositories {
         name = 'sonatype'
         url = 'https://oss.sonatype.org/content/groups/public/'
     }
+    maven {
+        name = 'minebench-repo'
+        url = 'https://repo.minebench.de/'
+    }
     maven { url 'http://ci.athion.net/job/FastAsyncWorldEdit/ws/mvn/' }
     maven { url 'https://maven.enginehub.org/repo/' }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -31,6 +36,10 @@ dependencies {
     compile 'com.boydti:fawe-api:latest'
     compile 'com.sk89q.worldedit:worldedit-core:6.1.4-SNAPSHOT'
     compile 'com.sk89q.worldedit:worldedit-bukkit:6.1.4-SNAPSHOT'
+
+    compile 'de.themoep:inventorygui:1.4.2-SNAPSHOT'
+
+    implementation 'com.github.WesJD.AnvilGUI:anvilgui:master-SNAPSHOT'
 
     compileOnly 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
