@@ -119,13 +119,13 @@ public class WorldManager {
         PPlayer pPlayer = PPlayer.get(player.getName());
         if (!new File(FileManager.getSchemaName(player.getName(), mapName)).exists()) {
             if (pPlayer.mapCount + 1 > pPlayer.maxMapCount) {
-                player.sendMessage("You have reached your maximum amount of maps! (" + pPlayer.maxMapCount + ")");
+                ChatUtils.sendMessage(player, "You have reached your maximum amount of maps! (" + pPlayer.maxMapCount + ")");
                 return false;
             }
             pPlayer.mapCount++;
         }
         if (!mapName.matches("[a-zA-Z0-9]+")) {
-            player.sendMessage("Name must be alphanumeric!");
+            ChatUtils.sendMessage(player, "Name must be alphanumeric!");
             return false;
         }
         int last = PlayerManager.playerList.indexOf(player.getName()); //Gets the index of the player so that arenas don't overlap.
@@ -142,7 +142,7 @@ public class WorldManager {
             //Saves the schematic.
         } catch (IOException e) { //Uh oh, an error occurred!
             e.printStackTrace(); //Print the error.
-            player.sendMessage(ChatColor.DARK_RED + "An unknown error occurred when saving schematic: " + player.getName() + ":" + mapName +
+            ChatUtils.sendMessage(player, ChatColor.DARK_RED + "An unknown error occurred when saving schematic: " + player.getName() + ":" + mapName +
               ". If you are an admin, please check console for any errors.");
             //Tell the player that an error occurred.
         }

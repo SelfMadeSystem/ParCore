@@ -139,7 +139,7 @@ public class PlayerManager implements Listener {
             //Pastes in the map.
         } catch (IOException e) { //Uh oh, an error has occurred!
             e.printStackTrace(); //Prints the error to console.
-            player.sendMessage(ChatColor.DARK_RED + "An unknown error occurred when loading schematic: " + playerName + ":" + mapName +
+            ChatUtils.sendMessage(player, "&4An unknown error occurred when loading schematic: " + playerName + ":" + mapName +
               ". If you are an admin, please check console for any errors.");
             //Tells the player that an error occurred when pasting in the schematic.
             backToSpawn(player); //Sends the player back to spawn.
@@ -253,14 +253,14 @@ public class PlayerManager implements Listener {
                   event.getTo().getY() < -4 ||
                   event.getTo().getY() > 260) {
                     event.setCancelled(true);
-                    event.getPlayer().sendMessage("You are not to leave the designated arena!");
+                    ChatUtils.sendMessage(event.getPlayer(), "&cYou are not to leave the designated arena!");
                     event.getPlayer().setAllowFlight(true);
                     event.getPlayer().setFlying(true);
                     Vector velocity = new Vector(
                       MathUtils.getVariance(event.getTo().getX(), min.getBlockX(), max.getBlockX(), false, 1) * 0.2,
                       MathUtils.getVariance(event.getTo().getY(), -2, 260, false, 1),
                       MathUtils.getVariance(event.getTo().getZ(), min.getBlockZ(), max.getBlockZ(), false, 1) * 0.2);
-                    event.getPlayer().sendMessage(-MathUtils.getVariance(event.getTo().getY(), -2, 260, true, 1) + " " +
+                    ChatUtils.sendMessage(event.getPlayer(), -MathUtils.getVariance(event.getTo().getY(), -2, 260, true, 1) + " " +
                       -MathUtils.getVariance(event.getTo().getY(), -2, 260, false, 1));
                     event.getPlayer().setVelocity(VectorUtils.toBukkitVector(velocity));
                 }
@@ -276,7 +276,7 @@ public class PlayerManager implements Listener {
                     if (!loc.equals(xloc)) {
                         if (mf.getMode().equals(MapFile.MapMode.BLOCK)) invForBlocks(event.getPlayer());
                         entry.setRespLoc(loc);
-                        event.getPlayer().sendMessage("Checkpoint reached.");
+                        ChatUtils.sendMessage(event.getPlayer(), "&bCheckpoint reached.");
                     }
                 } else if (event.getPlayer().getLocation().getBlock().getType().equals(Material.GOLD_PLATE)) {
                     for (PotionEffect effect : event.getPlayer().getActivePotionEffects())
@@ -284,14 +284,14 @@ public class PlayerManager implements Listener {
                     if (entry.getMode().equals(PlayerInfo.Mode.TESTING)) {
                         String[] st = entry.getMap().split(":");
                         FileManager.getMapFile(st[0], st[1]).setVerified(true);
-                        event.getPlayer().sendMessage("Map verified. (:");
+                        ChatUtils.sendMessage(event.getPlayer(), "&aMap verified.");
                     } else if (entry.getMode().equals(PlayerInfo.Mode.VERIFY)) {
                         String[] st = entry.getMap().split(":");
                         FileManager.getMapFile(st[0], st[1]).setVerified(true);
                         FileManager.getMapFile(st[0], st[1]).setPublished(true);
-                        event.getPlayer().sendMessage("Map verified and uploaded. (:");
+                        ChatUtils.sendMessage(event.getPlayer(), "&aMap verified and uploaded.");
                     } else
-                        event.getPlayer().sendMessage("You have reached the end! This doesn't do anything for now and just takes you back to spawn.");
+                        ChatUtils.sendMessage(event.getPlayer(), "&aYou have reached the end! This doesn't do anything for now and just takes you back to spawn.");
 
                     backToSpawn(event.getPlayer());
                 }
@@ -313,7 +313,7 @@ public class PlayerManager implements Listener {
         if (players.containsKey(event.getPlayer().getName())) {
             PlayerInfo entry = players.get(event.getPlayer().getName());
             if (entry.getMode().noBOrD) {
-                event.getPlayer().sendMessage("You are not allowed to break blocks!");
+                ChatUtils.sendMessage(event.getPlayer(), "&cYou are not allowed to break blocks!");
                 event.setCancelled(true);
                 return;
             }
@@ -326,7 +326,7 @@ public class PlayerManager implements Listener {
               event.getBlock().getLocation().getX() >= max.getBlockX() ||
               event.getBlock().getLocation().getZ() >= max.getBlockZ()) {
                 event.setCancelled(true);
-                event.getPlayer().sendMessage("You are not allowed to break blocks beyond designated arena!");
+                ChatUtils.sendMessage(event.getPlayer(), "&cYou are not allowed to break blocks beyond designated arena!");
             }
         }
     }
@@ -349,7 +349,7 @@ public class PlayerManager implements Listener {
                         return;
                     }
                 }
-                event.getPlayer().sendMessage("You are not allowed to place blocks!");
+                ChatUtils.sendMessage(event.getPlayer(), "&cYou are not allowed to place blocks!");
                 event.setCancelled(true);
                 return;
             }
@@ -362,7 +362,7 @@ public class PlayerManager implements Listener {
               event.getBlock().getLocation().getX() >= max.getBlockX() ||
               event.getBlock().getLocation().getZ() >= max.getBlockZ()) {
                 event.setCancelled(true);
-                event.getPlayer().sendMessage("You are not allowed to place blocks beyond designated arena!");
+                ChatUtils.sendMessage(event.getPlayer(), "&cYou are not allowed to place blocks beyond designated arena!");
             }
         }
     }

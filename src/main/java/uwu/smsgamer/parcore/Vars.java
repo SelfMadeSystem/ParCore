@@ -31,6 +31,10 @@ public class Vars {
      * Directory where player data are held
      */
     public static String playerPath = "players/";
+    /**
+     * Prefix for all messages
+     */
+    public static String prefix = "&b&lParkour&7>> ";
 
     /**
      * Sets up all the variables by first getting the config,
