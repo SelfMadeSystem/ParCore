@@ -84,7 +84,8 @@ public final class ParCore extends JavaPlugin implements Listener {
             SchemUtils.deleteSchematic(event.getPlayer().getName(), args[1]);
             event.setCancelled(true);
         } else if (args[0].equalsIgnoreCase("/save")) {
-            if (WorldManager.saveBuildArena(event.getPlayer(), args[1], args.length == 2 ? Material.AIR : Material.getMaterial(args[2])))
+            if (WorldManager.saveBuildArena(event.getPlayer(), args[1], args.length == 2 ? Material.AIR : Material.getMaterial(args[2]),
+              args.length > 3 ? MapFile.MapMode.getMode(args[3]) : MapFile.MapMode.NORMAL))
                 event.getPlayer().sendMessage("Saved!");
             event.setCancelled(true);
         } else if (args[0].equalsIgnoreCase("/b2s")) {

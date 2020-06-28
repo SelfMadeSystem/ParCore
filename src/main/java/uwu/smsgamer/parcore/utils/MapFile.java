@@ -30,6 +30,10 @@ public class MapFile {
      */
     private String description;
     /**
+     * Mode of the map
+     */
+    private MapMode mode;
+    /**
      * Whether or not it's published
      */
     private boolean published;
@@ -63,6 +67,7 @@ public class MapFile {
         player = config.getString("player");
         name = config.getString("name");
         description = config.getString("description");
+        mode = MapMode.getMode(config.getString("mode"));
         published = config.getBoolean("published");
         likes = new HashSet<>(config.getBooleanList("likes"));
         wallMaterial = Material.getMaterial(config.getString("wallMaterial"));
@@ -79,6 +84,7 @@ public class MapFile {
         player = config.getString("player");
         name = config.getString("name");
         description = config.getString("description");
+        mode = MapMode.getMode(config.getString("mode"));
         published = config.getBoolean("published");
         likes = new HashSet<>(config.getBooleanList("likes"));
         wallMaterial = Material.getMaterial(config.getString("wallMaterial"));
@@ -92,6 +98,7 @@ public class MapFile {
           "player='" + player + '\'' +
           ", name='" + name + '\'' +
           ", description='" + description + '\'' +
+          ", mode=" + mode +
           ", published=" + published +
           ", verified=" + verified +
           ", likes=" + likes +
@@ -106,6 +113,7 @@ public class MapFile {
         config.set("player", player); //Sets "player" to player
         config.set("name", name); //Sets "name" to the name
         config.set("description", description); //Sets "description" to nothing since it's unused, but still needed to be loaded in the FileManager.
+        config.set("mode", mode.name()); //Sets "mode" to the mode
         config.set("verified", verified); //Sets "verified" to false since it's unused, but still needed to be loaded in the FileManager.
         config.set("published", published); //Sets "published" to false since it's unused, but still needed to be loaded in the FileManager.
         config.set("likes", new ArrayList<Boolean>()); //Sets "likes" to an empty array since it's unused, but still needed to be loaded in the FileManager.
@@ -117,6 +125,19 @@ public class MapFile {
             config.save(FileManager.getYamlMapName(player, name));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public enum MapMode {
+        NORMAL,
+        JUMP,
+        BLOCK;
+
+        public static MapMode getMode(String st) {
+            if (st == null || st.isEmpty() || st.equalsIgnoreCase("normal")) return NORMAL;
+            else if (st.equalsIgnoreCase("jump")) return JUMP;
+            else if (st.equalsIgnoreCase("block")) return BLOCK;
+            return NORMAL;
         }
     }
 }

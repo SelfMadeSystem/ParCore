@@ -3,11 +3,14 @@ package uwu.smsgamer.parcore.managers;
 import com.sk89q.worldedit.Vector;
 import lombok.Getter;
 import org.bukkit.*;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.*;
 import uwu.smsgamer.parcore.*;
 import uwu.smsgamer.parcore.utils.*;
 
@@ -97,13 +100,28 @@ public class PlayerManager implements Listener {
           placeholder.length == 0 ? PlayerInfo.Mode.PLAYING : (placeholder[0] ? PlayerInfo.Mode.VERIFY : PlayerInfo.Mode.TESTING), respLoc, playerName + ":" + mapName));
         //Adds the player's name as key, and a new FourEntry with null as the boundaries,
         // 1 (playing) as the type, and respLoc as the respawn location for when the player dies.
-        BuildUtils.setupArena(FileManager.getMapFile(playerName, mapName).getWallMaterial(), WorldManager.getWorld(), min, max);
+        MapFile mf = FileManager.getMapFile(playerName, mapName);
+        BuildUtils.setupArena(mf.getWallMaterial(), WorldManager.getWorld(), min, max);
         //Sets up the arena by clearing everything between min & max vectors.
         pasteInMap(player, min, playerName, mapName); //Pastes in the map :)
-        player.setGameMode(GameMode.ADVENTURE); //Sets the player in adventure so that he can't place or break any blox.
+        if (mf.getMode().equals(MapFile.MapMode.BLOCK)) {
+            player.setGameMode(GameMode.SURVIVAL); //Sets the player in adventure so that he can't place or break any blox.
+            invForBlocks(player);
+        } else
+            player.setGameMode(GameMode.ADVENTURE); //Sets the player in adventure so that he can't place or break any blox.
+        if (mf.getMode().equals(MapFile.MapMode.JUMP)) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000000, 1, false, false), true);
+        }
         player.getInventory().clear(); //Clears his inventory.
         respawn(player); //Finally, teleports the player to the desired location.
         players.get(player.getName()).changeBlocks(); //makes changeBlock happen
+    }
+
+    public static void invForBlocks(Player player) {
+        if (!player.getInventory().contains(Material.STAINED_CLAY, 6)) {
+            player.getInventory().clear();
+            player.getInventory().addItem(new ItemStack(Material.STAINED_CLAY, 6, (short) 5));
+        }
     }
 
     /**
@@ -160,12 +178,20 @@ public class PlayerManager implements Listener {
 
     public static void respawn(Player player) {
         if (players.containsKey(player.getName())) {
+            PlayerInfo pi = players.get(player.getName());
+            String[] split = pi.getMap().split(":");
+            MapFile mf = FileManager.getMapFile(split[0], split[1]);
             Location loc = players.get(player.getName()).getRespLoc();
             if (loc == null)
                 return;
             player.teleport(new Location(loc.getWorld(), loc.getX() + 0.5, loc.getY(), loc.getZ() + 0.5));
             player.setHealth(20);
             player.setFoodLevel(20);
+            if (mf.getMode().equals(MapFile.MapMode.BLOCK)) {
+                invForBlocks(player);
+            } else if (mf.getMode().equals(MapFile.MapMode.JUMP)) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000000, 1, false, false), true);
+            }
         }
     }
 
@@ -213,6 +239,8 @@ public class PlayerManager implements Listener {
     public void onMove(PlayerMoveEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
             PlayerInfo entry = players.get(event.getPlayer().getName());
+            String[] split = entry.getMap().split(":");
+            MapFile mf = FileManager.getMapFile(split[0], split[1]);
             if (entry.getMode().limitH) {
                 if (entry.getMin() == null || entry.getMax() == null)
                     return;
@@ -238,17 +266,21 @@ public class PlayerManager implements Listener {
                 }
             }
             if (entry.getMode().playing) {
-                /*if (MathUtils.approxEquals(event.getTo().getY() - event.getFrom().getY(), 0.42F, 0.05)) {
-                    entry.changeBlocks();
-                }*/
+                if (mf.getMode().equals(MapFile.MapMode.BLOCK) && (event.getPlayer().getLocation().getBlock().getType().equals(Material.WOOD_PLATE) ||
+                  event.getPlayer().getLocation().getBlock().getType().equals(Material.STONE_PLATE))) {
+                    invForBlocks(event.getPlayer());
+                }
                 if (event.getPlayer().getLocation().getBlock().getType().equals(Material.IRON_PLATE)) {
                     Location loc = event.getPlayer().getLocation().getBlock().getLocation();
                     Location xloc = entry.getRespLoc().getBlock().getLocation();
                     if (!loc.equals(xloc)) {
+                        if (mf.getMode().equals(MapFile.MapMode.BLOCK)) invForBlocks(event.getPlayer());
                         entry.setRespLoc(loc);
                         event.getPlayer().sendMessage("Checkpoint reached.");
                     }
                 } else if (event.getPlayer().getLocation().getBlock().getType().equals(Material.GOLD_PLATE)) {
+                    for (PotionEffect effect : event.getPlayer().getActivePotionEffects())
+                        event.getPlayer().removePotionEffect(effect.getType());
                     if (entry.getMode().equals(PlayerInfo.Mode.TESTING)) {
                         String[] st = entry.getMap().split(":");
                         FileManager.getMapFile(st[0], st[1]).setVerified(true);
@@ -306,7 +338,17 @@ public class PlayerManager implements Listener {
     public void onPlace(BlockPlaceEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
             PlayerInfo entry = players.get(event.getPlayer().getName());
+            String[] split = entry.getMap().split(":");
+            MapFile mf = FileManager.getMapFile(split[0], split[1]);
             if (entry.getMode().noBOrD) {
+                if (entry.getMode().playing) {
+                    if (mf.getMode().equals(MapFile.MapMode.BLOCK)) {
+                        BlockState bs = event.getBlockReplacedState();
+                        Location loc = event.getBlock().getLocation();
+                        ThreadUtils.syncExDe(() -> loc.getBlock().setTypeIdAndData(bs.getType().getId(), bs.getRawData(), false), 40);
+                        return;
+                    }
+                }
                 event.getPlayer().sendMessage("You are not allowed to place blocks!");
                 event.setCancelled(true);
                 return;

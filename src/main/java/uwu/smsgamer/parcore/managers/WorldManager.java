@@ -115,7 +115,7 @@ public class WorldManager {
      * @param wallMaterial The material of the wall of the map.
      * @return Whether it was successful or not.
      */
-    public static boolean saveBuildArena(Player player, String mapName, Material wallMaterial) {
+    public static boolean saveBuildArena(Player player, String mapName, Material wallMaterial, MapFile.MapMode mode) {
         PPlayer pPlayer = PPlayer.get(player.getName());
         if (!new File(FileManager.getSchemaName(player.getName(), mapName)).exists()) {
             if (pPlayer.mapCount + 1 > pPlayer.maxMapCount) {
@@ -138,7 +138,7 @@ public class WorldManager {
             else
                 SchemUtils.saveSchematic(new Location(world, s + 1, 0, s + 1),
                   Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName,
-                  new Vector(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()).subtract(s, 0, s), wallMaterial);
+                  new Vector(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()).subtract(s, 0, s), wallMaterial, mode);
             //Saves the schematic.
         } catch (IOException e) { //Uh oh, an error occurred!
             e.printStackTrace(); //Print the error.
