@@ -1,5 +1,6 @@
 package uwu.smsgamer.parcore;
 
+import org.bukkit.command.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.annotation.command.Command;
 import org.bukkit.plugin.java.annotation.dependency.Dependency;
@@ -40,15 +41,23 @@ public final class ParCore extends JavaPlugin /*implements Listener*/ {
         FileManager.setup(this);
         WorldManager.setup(this);
         PlayerManager.setup(this);
-        getCommand("maps").setExecutor(new MapsCommand());
-        getCommand("play").setExecutor(new PlayCommand());
-        getCommand("publish").setExecutor(new PublishCommand());
-        getCommand("save").setExecutor(new SaveCommand());
-        getCommand("test").setExecutor(new TestCommand());
+        setExec("maps", new MapsCommand());
+        setExec("play", new PlayCommand());
+        setExec("publish", new PublishCommand());
+        setExec("save", new SaveCommand());
+        setExec("test", new TestCommand());
         //Bukkit.getPluginManager().registerEvents(this, this);
     }
 
-    /**Tells the WorldManager that we're disabling. Doesn't do anything atm*/
+    private void setExec(String cmd, TabExecutor executor) {
+        PluginCommand c = getCommand(cmd);
+        c.setExecutor(executor);
+        c.setTabCompleter(executor);
+    }
+
+    /**
+     * Tells the WorldManager that we're disabling. Doesn't do anything atm
+     */
     @Override
     public void onDisable() {
         PlayerManager.done();
