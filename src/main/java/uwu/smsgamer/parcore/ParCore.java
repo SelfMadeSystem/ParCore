@@ -1,16 +1,13 @@
 package uwu.smsgamer.parcore;
 
-import org.bukkit.*;
-import org.bukkit.event.*;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.annotation.command.Command;
 import org.bukkit.plugin.java.annotation.dependency.Dependency;
 import org.bukkit.plugin.java.annotation.plugin.*;
 import org.bukkit.plugin.java.annotation.plugin.author.Author;
+import uwu.smsgamer.parcore.commands.*;
 import uwu.smsgamer.parcore.managers.*;
-import uwu.smsgamer.parcore.utils.*;
-
-import java.util.stream.Collectors;
+import uwu.smsgamer.parcore.utils.ThreadUtils;
 
 /**
  * Main class for this plugin.
@@ -20,7 +17,16 @@ import java.util.stream.Collectors;
 @Author("Sms_Gamer_3808")
 @Dependency("LuckPerms")
 @Dependency("WorldEdit")
-public final class ParCore extends JavaPlugin implements Listener {
+@Command(name = "maps", desc = "Lists your maps and all public maps.", usage = "/maps [mine, player name]")
+@Command(name = "play", desc = "Plays somebody's map if it's published. Plays your own whether or not it's published.",
+  usage = "/play [player name] [map name]")
+@Command(name = "publish", desc = "Publishes the map you're working on or another map. " +
+  "If you haven't verified it yet, you will play the map and once you verified it, then it will be published.",
+  aliases = "upload", usage = "/publish [map name]")
+@Command(name = "save", desc = "Saves the map you're working on.", usage = "/save [map name]")
+@Command(name = "test", desc = "Tests the map you're working on or another one of your maps." +
+  "If you complete it, it will be verified.", usage = "/test [map name]")
+public final class ParCore extends JavaPlugin /*implements Listener*/ {
 
     /**
      * Sets up Vars, ThreadUtils, every Manager, then registers
@@ -34,7 +40,12 @@ public final class ParCore extends JavaPlugin implements Listener {
         FileManager.setup(this);
         WorldManager.setup(this);
         PlayerManager.setup(this);
-        Bukkit.getPluginManager().registerEvents(this, this);
+        getCommand("maps").setExecutor(new MapsCommand());
+        getCommand("play").setExecutor(new PlayCommand());
+        getCommand("publish").setExecutor(new PublishCommand());
+        getCommand("save").setExecutor(new SaveCommand());
+        getCommand("test").setExecutor(new TestCommand());
+        //Bukkit.getPluginManager().registerEvents(this, this);
     }
 
     /**Tells the WorldManager that we're disabling. Doesn't do anything atm*/
@@ -45,7 +56,7 @@ public final class ParCore extends JavaPlugin implements Listener {
         FileManager.done();
     }
 
-    /**TEMPORARY housing of commands to test shit.*/
+    /*TEMPORARY housing of commands to test shit.
     @EventHandler
     public void onCommand(PlayerCommandPreprocessEvent event) {
         if (event.getMessage().equalsIgnoreCase("/pkr")) {
@@ -116,5 +127,6 @@ public final class ParCore extends JavaPlugin implements Listener {
                 }
             }
         }
-    }
+    }*/
 }
+
