@@ -2,7 +2,7 @@ package uwu.smsgamer.parcore.managers;
 
 import de.themoep.inventorygui.*;
 import de.themoep.inventorygui.GuiPageElement.PageAction;
-import org.bukkit.*;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import uwu.smsgamer.parcore.ParCore;
@@ -42,6 +42,7 @@ public class GuiManager {
           "fp     nl" //first prev next last
         };
         if (playerOnly == null || playerOnly.isEmpty()) playerOnly = "";
+        else if (playerOnly.equalsIgnoreCase("mine")) playerOnly = player.getName();
         InventoryGui gui = new InventoryGui(pl, player, playerOnly.isEmpty() ? "Maps" :
           (playerOnly.equalsIgnoreCase(player.getName()) ? "Your" : playerOnly) + " maps", guiSetup);
         gui.setFiller(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5));
@@ -60,10 +61,9 @@ public class GuiManager {
         gui.addElement(new GuiPageElement('l', new ItemStack(Material.ARROW), PageAction.LAST, "Go to last page (%pages%)"));
 
         for (Elm elm : list = getFirstRow(false, playerOnly))
-            if (elm.description == null || elm.description.isEmpty())
-                group.addElement(new StaticGuiElement('e', elm.stack, click -> {
-                    click.getGui().close();
-                    Elm clm = list.get(click.getSlot());
+            group.addElement(new StaticGuiElement('e', elm.stack, click -> {
+                try {
+                    Elm clm = list.get(click.getSlot() - 9);
                     if (clm.player.equalsIgnoreCase(player.getName())) {
                         WorldManager.newMapArena(player, player.getName(), clm.name, false);
                         Chat.send(player, "&aPlaying map: &7" + clm.name + " &a, made by you.");
@@ -72,22 +72,15 @@ public class GuiManager {
                         WorldManager.newMapArena(player, player.getName(), clm.name);
                         Chat.send(player, "&aPlaying map: &7" + clm.name + " &a, made by: &7" + clm.player);
                     }
-                    return true;
-                }, elm.name, "By: " + elm.player, "Rating: " + elm.rating));
-            else
-                group.addElement(new StaticGuiElement('e', elm.stack, click -> {
                     click.getGui().close();
-                    Elm clm = list.get(click.getSlot());
-                    if (clm.player.equalsIgnoreCase(player.getName())) {
-                        WorldManager.newMapArena(player, player.getName(), clm.name, false);
-                        Chat.send(player, "&aPlaying map: &7" + clm.name + " &a, made by you.");
-                        Chat.send(player, "If you complete the map, it will be verified.");
-                    } else {
-                        WorldManager.newMapArena(player, player.getName(), clm.name);
-                        Chat.send(player, "&aPlaying map: &7" + clm.name + " &a, made by: &7" + clm.player);
-                    }
                     return true;
-                }, ChatColor.RESET + elm.name, elm.description, ChatColor.RESET + "By: " + elm.player, ChatColor.RESET + "Rating: " + elm.rating));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Chat.send(player, "&4An error occurred. Please contact administration or look at console for more information.");
+                    return true;
+                }
+            }, elm.name, (elm.description == null || elm.description.isEmpty()) ? "No description... Find out what the map offers by yourself!" : elm.description,
+              "By: " + elm.player, "Rating: " + elm.rating));
         gui.addElement(group);
         gui.show(player);
     }
