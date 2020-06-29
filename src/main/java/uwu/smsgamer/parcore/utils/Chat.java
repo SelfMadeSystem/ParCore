@@ -6,6 +6,6 @@ import uwu.smsgamer.parcore.Vars;
 
 public class Chat {
     public static void send(CommandSender player, String message) {
-        player.sendMessage(ChatColor.translateAlternateColorCodes('&', Vars.prefix + message));
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', Vars.prefix + "&r" + message));
     }
 }

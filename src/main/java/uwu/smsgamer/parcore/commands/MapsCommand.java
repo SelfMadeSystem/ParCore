@@ -1,6 +1,6 @@
 package uwu.smsgamer.parcore.commands;
 
-import org.bukkit.Bukkit;
+import org.bukkit.*;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import uwu.smsgamer.parcore.managers.GuiManager;
@@ -13,7 +13,7 @@ public class MapsCommand implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof ConsoleCommandSender) {
-            Chat.send(sender, "Player only!");
+            Chat.send(sender, ChatColor.RED + "Players only!");
             return true;
         }
         if (args.length == 0) {

@@ -69,17 +69,23 @@ public class GuiManager {
                 else text.add(ChatColor.RED + "Not verified.");
                 if (elm.mf.isPublished()) text.add(ChatColor.GREEN + "Published.");
                 else text.add(ChatColor.RED + "Not published.");
+                text.add(ChatColor.RESET + "Right click to edit map.");
             }
             group.addElement(new StaticGuiElement('e', elm.stack, click -> {
                 try {
                     Elm clm = list.get(click.getSlot() - 9);
                     if (clm.player.equalsIgnoreCase(player.getName())) {
-                        WorldManager.newMapArena(player, clm.player, clm.name, false);
-                        Chat.send(player, "&aPlaying map: &7" + clm.name + "&a, made by you.");
-                        Chat.send(player, "If you complete the map, it will be verified.");
+                        if (click.getType().isRightClick()) {
+                            WorldManager.newBuildArena(player, clm.name);
+                            Chat.send(player, "&aYou are now editing: &6" + clm.name);
+                        } else {
+                            WorldManager.newMapArena(player, clm.player, clm.name, false);
+                            Chat.send(player, "&aPlaying map: &6" + clm.name + "&a, made by you.");
+                            Chat.send(player, "If you complete the map, it will be verified.");
+                        }
                     } else {
                         WorldManager.newMapArena(player, clm.player, clm.name);
-                        Chat.send(player, "&aPlaying map: &7" + clm.name + "&a, made by: &7" + clm.player);
+                        Chat.send(player, "&aPlaying map: &6" + clm.name + "&a, made by: &7" + clm.player);
                     }
                     click.getGui().close();
                     return true;

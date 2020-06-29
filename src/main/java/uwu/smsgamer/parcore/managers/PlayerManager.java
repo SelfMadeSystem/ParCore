@@ -152,9 +152,10 @@ public class PlayerManager implements Listener {
      * @param player The player that will build the map.
      * @param min The minimum boundary.
      * @param max The maximum boundary.
+     * @param mapName The name of the map.
      */
-    public static void playerMakeMap(Player player, Vector min, Vector max) {
-        players.put(player.getName(), new PlayerInfo(min, max, PlayerInfo.Mode.MAKE, null, null));
+    public static void playerMakeMap(Player player, Vector min, Vector max, String mapName) {
+        players.put(player.getName(), new PlayerInfo(min, max, PlayerInfo.Mode.MAKE, null, player.getName() + ":" + mapName));
         //Adds the player's name as key, and a new FourEntry with the min and max as boundaries,
         // 0 (making) as the type, and nothing as the respawn location.
         player.setGameMode(GameMode.CREATIVE); //Sets the player's gamemode to gmc so he can start building.
@@ -179,18 +180,20 @@ public class PlayerManager implements Listener {
     public static void respawn(Player player) {
         if (players.containsKey(player.getName())) {
             PlayerInfo pi = players.get(player.getName());
-            String[] split = pi.getMap().split(":");
-            MapFile mf = FileManager.getMapFile(split[0], split[1]);
             Location loc = players.get(player.getName()).getRespLoc();
             if (loc == null)
                 return;
             player.teleport(new Location(loc.getWorld(), loc.getX() + 0.5, loc.getY(), loc.getZ() + 0.5));
             player.setHealth(20);
             player.setFoodLevel(20);
-            if (mf.getMode().equals(MapFile.MapMode.BLOCK)) {
-                invForBlocks(player);
-            } else if (mf.getMode().equals(MapFile.MapMode.JUMP)) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000000, 1, false, false), true);
+            if (pi.getMode().playing) {
+                String[] split = pi.getMap().split(":");
+                MapFile mf = FileManager.getMapFile(split[0], split[1]);
+                if (mf.getMode().equals(MapFile.MapMode.BLOCK)) {
+                    invForBlocks(player);
+                } else if (mf.getMode().equals(MapFile.MapMode.JUMP)) {
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000000, 1, false, false), true);
+                }
             }
         }
     }
@@ -338,10 +341,10 @@ public class PlayerManager implements Listener {
     public void onPlace(BlockPlaceEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
             PlayerInfo entry = players.get(event.getPlayer().getName());
-            String[] split = entry.getMap().split(":");
-            MapFile mf = FileManager.getMapFile(split[0], split[1]);
             if (entry.getMode().noBOrD) {
                 if (entry.getMode().playing) {
+                    String[] split = entry.getMap().split(":");
+                    MapFile mf = FileManager.getMapFile(split[0], split[1]);
                     if (mf.getMode().equals(MapFile.MapMode.BLOCK)) {
                         BlockState bs = event.getBlockReplacedState();
                         Location loc = event.getBlock().getLocation();

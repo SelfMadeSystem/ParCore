@@ -65,7 +65,7 @@ public class WorldManager {
         // and multiplying it by the spacing set in Vars.
         Vector max = new Vector(Vars.size.getBlockX() + (last * Vars.spacing), 255, Vars.size.getBlockZ() + (last * Vars.spacing));
         //Gets the max vector by getting the the size set in vars and adding, the index of the player multiplied by the spacing.
-        PlayerManager.playerMakeMap(player, min, max); //Tells PlayerManager that we're making a "MakeMap" (building arena)
+        PlayerManager.playerMakeMap(player, min, max, ""); //Tells PlayerManager that we're making a "MakeMap" (building arena)
         BuildUtils.setupArena(Vars.wallMaterial, world, min, max); //Sets up the arena with wallMaterial set in Vars as the wall material,
         // the "world" set up in the setup function, and the minimum and maximum vector positions.
         player.setAllowFlight(true); //Sets the player to be able to fly.
@@ -84,7 +84,7 @@ public class WorldManager {
         // and multiplying it by the spacing set in Vars.
         Vector max = new Vector(Vars.size.getBlockX() + (last * Vars.spacing), 255, Vars.size.getBlockZ() + (last * Vars.spacing));
         //Gets the max vector by getting the the size set in vars and adding, the index of the player multiplied by the spacing.
-        PlayerManager.playerMakeMap(player, min, max); //Tells PlayerManager that we're making a "MakeMap" (building arena)
+        PlayerManager.playerMakeMap(player, min, max, mapName); //Tells PlayerManager that we're making a "MakeMap" (building arena)
         BuildUtils.setupArena(Vars.wallMaterial, world, min, max); //Sets up the arena with wallMaterial set in Vars as the wall material,
         PlayerManager.pasteInMap(player, min, player.getName(), mapName); //Pastes in the map :)
         // the "world" set up in the setup function, and the minimum and maximum vector positions.
