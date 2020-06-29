@@ -57,7 +57,7 @@ public class BuildUtils {
         return replacements;
     }
 
-    /**
+    /*
      * Replaces the key with the value
      * of each entr in "repl"
      *
@@ -66,7 +66,7 @@ public class BuildUtils {
      * @param min Min vector
      * @param max Max vector
      * @return Every replaced block.
-     */
+
     public static List<Vector>[] replaceMaterials(Map.Entry<Material, Material>[] repl, World world, Vector min, Vector max) {
         final int maxX = Math.abs(min.getBlockX() - max.getBlockX()); //Gets the maxX value from subtracting the minBlockX & maxBlockX
         final int maxZ = Math.abs(min.getBlockZ() - max.getBlockZ()); //Gets the maxZ value from subtracting the minBlockZ & maxBlockZ
@@ -88,5 +88,5 @@ public class BuildUtils {
             }
         }
         return replacements;
-    }
+    }*/
 }
