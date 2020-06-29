@@ -1,5 +1,9 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
+plugins {
+    id "com.github.johnrengelman.shadow" version "6.0.0"
+}
+
 apply plugin: 'java'
 
 group = 'uwu.smsgamer'
@@ -7,6 +11,11 @@ version = '1.0'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
+
+configurations {
+    provided
+    compile.extendsFrom provided
+}
 
 repositories {
     mavenCentral()
@@ -28,24 +37,27 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
-    compileOnly 'org.spigotmc:plugin-annotations:1.2.2-SNAPSHOT'
+    provided 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+    provided 'org.spigotmc:plugin-annotations:1.2.2-SNAPSHOT'
     
     annotationProcessor 'org.spigotmc:plugin-annotations:1.2.2-SNAPSHOT'
 
-    compile 'com.boydti:fawe-api:latest'
-    compile 'com.sk89q.worldedit:worldedit-core:6.1.4-SNAPSHOT'
-    compile 'com.sk89q.worldedit:worldedit-bukkit:6.1.4-SNAPSHOT'
+    provided 'com.boydti:fawe-api:latest'
+    provided 'com.sk89q.worldedit:worldedit-core:6.1.4-SNAPSHOT'
+    provided 'com.sk89q.worldedit:worldedit-bukkit:6.1.4-SNAPSHOT'
 
-    compile 'de.themoep:inventorygui:1.4.2-SNAPSHOT'
+    shadow 'de.themoep:inventorygui:1.4.2-SNAPSHOT'
+    shadow 'com.github.WesJD.AnvilGUI:anvilgui:master-SNAPSHOT'
 
-    implementation 'com.github.WesJD.AnvilGUI:anvilgui:master-SNAPSHOT'
-
-    compileOnly 'org.projectlombok:lombok:1.18.12'
+    provided 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
 
     testCompileOnly 'org.projectlombok:lombok:1.18.12'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+}
+
+shadowJar {
+    configurations = [project.configurations.shadow] // ***
 }
 
 processResources {
