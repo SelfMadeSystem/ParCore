@@ -17,9 +17,9 @@ public class MapsCommand implements TabExecutor {
             return true;
         }
         if (args.length == 0) {
-            new GuiManager((Player) sender).openMapsGui("");
+            GuiManager.getManager((Player) sender).openMapsGui("");
         } else {
-            new GuiManager((Player) sender).openMapsGui(args[0]);
+            GuiManager.getManager((Player) sender).openMapsGui(args[0]);
         }
         return true;
     }

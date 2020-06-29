@@ -2,7 +2,7 @@ package uwu.smsgamer.parcore.managers;
 
 import de.themoep.inventorygui.*;
 import de.themoep.inventorygui.GuiPageElement.PageAction;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import uwu.smsgamer.parcore.ParCore;
@@ -20,9 +20,14 @@ public class GuiManager {
     Player player;
     List<Elm> list;
 
-    public GuiManager(Player player) {
+    private GuiManager(Player player) {
         this.player = player;
         guis.put(player.getName(), this);
+    }
+
+    public static GuiManager getManager(Player player) {
+        if (guis.containsKey(player.getName())) return guis.get(player.getName());
+        return new GuiManager(player);
     }
 
     public static void setup(ParCore plugin) {
@@ -70,8 +75,21 @@ public class GuiManager {
                     return true;
                 }, elm.name, "By: " + elm.player, "Rating: " + elm.rating));
             else
-                group.addElement(new StaticGuiElement('e', elm.stack, elm.name, elm.description, "By: " + elm.player, "Rating: " + elm.rating));
+                group.addElement(new StaticGuiElement('e', elm.stack, click -> {
+                    click.getGui().close();
+                    Elm clm = list.get(click.getSlot());
+                    if (clm.player.equalsIgnoreCase(player.getName())) {
+                        WorldManager.newMapArena(player, player.getName(), clm.name, false);
+                        Chat.send(player, "&aPlaying map: &7" + clm.name + " &a, made by you.");
+                        Chat.send(player, "If you complete the map, it will be verified.");
+                    } else {
+                        WorldManager.newMapArena(player, player.getName(), clm.name);
+                        Chat.send(player, "&aPlaying map: &7" + clm.name + " &a, made by: &7" + clm.player);
+                    }
+                    return true;
+                }, ChatColor.RESET + elm.name, elm.description, ChatColor.RESET + "By: " + elm.player, ChatColor.RESET + "Rating: " + elm.rating));
         gui.addElement(group);
+        gui.show(player);
     }
 
     /*public static String[][] getFirstRowPlayerOnly(String player) {
