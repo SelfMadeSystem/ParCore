@@ -61,7 +61,7 @@ public class GuiManager {
         gui.addElement(new GuiPageElement('l', new ItemStack(Material.ARROW), PageAction.LAST, "Go to last page (%pages%)"));
 
         for (Elm elm : list = getFirstRow(false, playerOnly)) {
-            List<String> text = new ArrayList<>(Arrays.asList(elm.name, (elm.description == null || elm.description.isEmpty()) ? "No description... Find out what the map offers by yourself!" : elm.description,
+            List<String> text = new ArrayList<>(Arrays.asList(ChatColor.RESET + elm.name, (elm.description == null || elm.description.isEmpty()) ? "No description... Find out what the map offers by yourself!" : elm.description,
               ChatColor.RESET + "By: " + elm.player, ChatColor.RESET + "Rating: " + elm.rating));
             if (elm.player.equalsIgnoreCase(player.getName())) {
                 if (elm.mf.isVerified()) text.add(ChatColor.GREEN + "Verified.");
