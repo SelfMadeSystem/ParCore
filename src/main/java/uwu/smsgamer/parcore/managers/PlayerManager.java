@@ -239,8 +239,6 @@ public class PlayerManager implements Listener {
     public void onMove(PlayerMoveEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
             PlayerInfo entry = players.get(event.getPlayer().getName());
-            String[] split = entry.getMap().split(":");
-            MapFile mf = FileManager.getMapFile(split[0], split[1]);
             if (entry.getMode().limitH) {
                 if (entry.getMin() == null || entry.getMax() == null)
                     return;
@@ -266,6 +264,8 @@ public class PlayerManager implements Listener {
                 }
             }
             if (entry.getMode().playing) {
+                String[] split = entry.getMap().split(":");
+                MapFile mf = FileManager.getMapFile(split[0], split[1]);
                 if (mf.getMode().equals(MapFile.MapMode.BLOCK) && (event.getPlayer().getLocation().getBlock().getType().equals(Material.WOOD_PLATE) ||
                   event.getPlayer().getLocation().getBlock().getType().equals(Material.STONE_PLATE))) {
                     invForBlocks(event.getPlayer());

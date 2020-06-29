@@ -29,7 +29,7 @@ public class PlayerInfo {
         this.max = max;
         this.mode = mode;
         this.respLoc = respLoc;
-        this.map = map;
+        this.map = map == null ? "" : map;
         this.switchBlocks = false;
     }
 
