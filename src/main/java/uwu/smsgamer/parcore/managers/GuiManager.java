@@ -2,7 +2,7 @@ package uwu.smsgamer.parcore.managers;
 
 import de.themoep.inventorygui.*;
 import de.themoep.inventorygui.GuiPageElement.PageAction;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import uwu.smsgamer.parcore.ParCore;
@@ -60,17 +60,25 @@ public class GuiManager {
         // Last page
         gui.addElement(new GuiPageElement('l', new ItemStack(Material.ARROW), PageAction.LAST, "Go to last page (%pages%)"));
 
-        for (Elm elm : list = getFirstRow(false, playerOnly))
+        for (Elm elm : list = getFirstRow(false, playerOnly)) {
+            List<String> text = Arrays.asList(elm.name, (elm.description == null || elm.description.isEmpty()) ? "No description... Find out what the map offers by yourself!" : elm.description,
+              ChatColor.RESET + "By: " + elm.player, ChatColor.RESET + "Rating: " + elm.rating);
+            if (elm.player.equalsIgnoreCase(player.getName())) {
+                if (elm.mf.isVerified()) text.add(ChatColor.GREEN + "Verified.");
+                else text.add(ChatColor.RED + "Not verified.");
+                if (elm.mf.isPublished()) text.add(ChatColor.GREEN + "Published.");
+                else text.add(ChatColor.RED + "Not published.");
+            }
             group.addElement(new StaticGuiElement('e', elm.stack, click -> {
                 try {
                     Elm clm = list.get(click.getSlot() - 9);
                     if (clm.player.equalsIgnoreCase(player.getName())) {
                         WorldManager.newMapArena(player, player.getName(), clm.name, false);
-                        Chat.send(player, "&aPlaying map: &7" + clm.name + " &a, made by you.");
+                        Chat.send(player, "&aPlaying map: &7" + clm.name + "&a, made by you.");
                         Chat.send(player, "If you complete the map, it will be verified.");
                     } else {
                         WorldManager.newMapArena(player, player.getName(), clm.name);
-                        Chat.send(player, "&aPlaying map: &7" + clm.name + " &a, made by: &7" + clm.player);
+                        Chat.send(player, "&aPlaying map: &7" + clm.name + "&a, made by: &7" + clm.player);
                     }
                     click.getGui().close();
                     return true;
@@ -79,8 +87,8 @@ public class GuiManager {
                     Chat.send(player, "&4An error occurred. Please contact administration or look at console for more information.");
                     return true;
                 }
-            }, elm.name, (elm.description == null || elm.description.isEmpty()) ? "No description... Find out what the map offers by yourself!" : elm.description,
-              "By: " + elm.player, "Rating: " + elm.rating));
+            }, text.toArray(new String[0])));
+        }
         gui.addElement(group);
         gui.show(player);
     }
@@ -98,9 +106,9 @@ public class GuiManager {
         for (MapFile f : files) {
             if (only) {
                 if (f.isPublished() && f.getPlayer().equalsIgnoreCase(playersOnly))
-                    elms.add(new Elm(f.getPlayer(), f.getName(), f.getDescription(), Elm.normal, MathUtils.getRating(f.getLikes())));
+                    elms.add(new Elm(f.getPlayer(), f.getName(), f.getDescription(), Elm.normal, MathUtils.getRating(f.getLikes()), f));
             } else {
-                Elm elm = new Elm(f.getPlayer(), f.getName(), f.getDescription(), MathUtils.getRating(f.getLikes()));
+                Elm elm = new Elm(f.getPlayer(), f.getName(), f.getDescription(), MathUtils.getRating(f.getLikes()), f);
                 if (f.getPlayer().equalsIgnoreCase(player.getName())) {
                     if (f.isPublished()) {
                         elm.stack = Elm.published;
@@ -138,20 +146,23 @@ public class GuiManager {
         public String description;
         public ItemStack stack;
         public double rating;
+        public final MapFile mf;
 
-        public Elm(String player, String name, String description, double rating) {
+        public Elm(String player, String name, String description, double rating, MapFile mf) {
             this.player = player;
             this.name = name;
             this.description = description;
             this.rating = rating;
+            this.mf = mf;
         }
 
-        public Elm(String player, String name, String description, ItemStack stack, double rating) {
+        public Elm(String player, String name, String description, ItemStack stack, double rating, MapFile mf) {
             this.player = player;
             this.name = name;
             this.description = description;
             this.stack = stack;
             this.rating = rating;
+            this.mf = mf;
         }
     }
 }
