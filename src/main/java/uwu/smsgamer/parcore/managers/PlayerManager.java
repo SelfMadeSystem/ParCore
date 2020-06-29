@@ -260,8 +260,6 @@ public class PlayerManager implements Listener {
                       MathUtils.getVariance(event.getTo().getX(), min.getBlockX(), max.getBlockX(), false, 1) * 0.2,
                       MathUtils.getVariance(event.getTo().getY(), -2, 260, false, 1),
                       MathUtils.getVariance(event.getTo().getZ(), min.getBlockZ(), max.getBlockZ(), false, 1) * 0.2);
-                    Chat.send(event.getPlayer(), -MathUtils.getVariance(event.getTo().getY(), -2, 260, true, 1) + " " +
-                      -MathUtils.getVariance(event.getTo().getY(), -2, 260, false, 1));
                     event.getPlayer().setVelocity(VectorUtils.toBukkitVector(velocity));
                 }
             }

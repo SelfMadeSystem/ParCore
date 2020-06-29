@@ -115,17 +115,17 @@ public class WorldManager {
      * @param wallMaterial The material of the wall of the map.
      * @return Whether it was successful or not.
      */
-    public static boolean saveBuildArena(Player player, String mapName, Material wallMaterial, MapFile.MapMode mode) {
+    public static boolean saveBuildArena(Player player, String mapName, String description, Material wallMaterial, MapFile.MapMode mode) {
         PPlayer pPlayer = PPlayer.get(player.getName());
         if (!new File(FileManager.getSchemaName(player.getName(), mapName)).exists()) {
             if (pPlayer.mapCount + 1 > pPlayer.maxMapCount) {
-                Chat.send(player, "You have reached your maximum amount of maps! (" + pPlayer.maxMapCount + ")");
+                Chat.send(player, "&cYou have reached your maximum amount of maps of " + pPlayer.maxMapCount + "!");
                 return false;
             }
             pPlayer.mapCount++;
         }
         if (!mapName.matches("[a-zA-Z0-9]+")) {
-            Chat.send(player, "Name must be alphanumeric!");
+            Chat.send(player, "&cName of map must be alphanumeric.");
             return false;
         }
         int last = PlayerManager.playerList.indexOf(player.getName()); //Gets the index of the player so that arenas don't overlap.
@@ -133,18 +133,19 @@ public class WorldManager {
             double s = (last * Vars.spacing);
             if (wallMaterial == null)
                 SchemUtils.saveSchematic(new Location(world, s + 1, 0, s + 1),
-                  Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName,
+                  Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName, description,
                   new Vector(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()).subtract(s, 0, s));
             else
                 SchemUtils.saveSchematic(new Location(world, s + 1, 0, s + 1),
-                  Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName,
+                  Vars.size.getBlockX() - 2, Vars.size.getBlockZ() - 2, player.getName(), mapName, description,
                   new Vector(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()).subtract(s, 0, s), wallMaterial, mode);
             //Saves the schematic.
         } catch (IOException e) { //Uh oh, an error occurred!
             e.printStackTrace(); //Print the error.
-            Chat.send(player, ChatColor.DARK_RED + "An unknown error occurred when saving schematic: " + player.getName() + ":" + mapName +
+            Chat.send(player, "&4An unknown error occurred when saving schematic: " + player.getName() + ":" + mapName +
               ". If you are an admin, please check console for any errors.");
             //Tell the player that an error occurred.
+            return false;
         }
         return true;
     }

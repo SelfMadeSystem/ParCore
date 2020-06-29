@@ -2,6 +2,7 @@ package uwu.smsgamer.parcore.managers;
 
 import de.themoep.inventorygui.*;
 import de.themoep.inventorygui.GuiPageElement.PageAction;
+import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,6 +21,7 @@ public class GuiManager {
     static ParCore pl;
     final Player player;
     List<Elm> list;
+    MapFile mapFile;
 
     private GuiManager(Player player) {
         this.player = player;
@@ -37,7 +39,7 @@ public class GuiManager {
 
     public void openMapsGui(String playerOnly) {
         String[] guiSetup = {
-          "         ", //Alpha, reverse aLpha, Rating
+          "    e    ", //make map or smth idk
           "ggggggggg",
           "ggggggggg",
           "fp     nl" //first prev next last
@@ -49,6 +51,13 @@ public class GuiManager {
         gui.setFiller(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5));
         GuiElementGroup group = new GuiElementGroup('g');
 
+        //Edit
+        gui.addElement(new StaticGuiElement('e', new ItemStack(Material.WORKBENCH), click -> {
+            Chat.send(player, "&aSetting up creator map...");
+            WorldManager.newBuildArena(player);
+            Chat.send(player, "&aCreator map set up!");
+            return true;
+        }, "Make a new map."));
         // First page
         gui.addElement(new GuiPageElement('f', new ItemStack(Material.ARROW), PageAction.FIRST, "Go to first page (current: %page%)"));
 
@@ -98,6 +107,82 @@ public class GuiManager {
             }, text.toArray(new String[0])));
         }
         gui.addElement(group);
+        gui.show(player);
+    }
+
+    public void openMapSettings(String mapName) {
+        if (mapName == null || mapName.isEmpty()) {
+            AnvilGUI.Builder builder = new AnvilGUI.Builder();
+            builder.plugin(pl);
+            builder.title("");
+            builder.onComplete((plr, txt) -> {
+                if (txt == null || txt.isEmpty() || !txt.matches("[a-zA-Z0-9]+")) {
+                    return AnvilGUI.Response.text("Invalid name.");
+                }
+                openMapSettings0(txt);
+                return AnvilGUI.Response.close();
+            });
+            builder.open(player);
+        } else
+            openMapSettings0(mapName);
+    }
+
+    private void openMapSettings0(String mapName) {
+        mapFile = FileManager.getMapFile(player.getName(), mapName);
+        String[] guiSetup = {
+          "n m r o d", //Name Material Remove mOde Description
+        };
+        InventoryGui gui = new InventoryGui(pl, player, mapName + " Settings", guiSetup);
+        gui.setCloseAction(close -> true); // TODO: 2020-06-29 do shit
+        gui.setFiller(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5));
+        gui.addElement(new StaticGuiElement('n', new ItemStack(Material.NAME_TAG),
+          click -> {
+              AnvilGUI.Builder builder = new AnvilGUI.Builder();
+              builder.plugin(pl);
+              builder.onClose((plr) -> gui.show(player));
+              builder.onComplete((plr, txt) -> {
+                  if (txt == null || txt.isEmpty() || !txt.matches("[a-zA-Z0-9]+")) {
+                      return AnvilGUI.Response.text("Invalid name.");
+                  }
+                  mapFile.setName(txt);
+                  gui.setTitle(ChatColor.GREEN + "Name set to: " + txt);
+                  return AnvilGUI.Response.close();
+              });
+              builder.open(player);
+              return true;
+          }, ChatColor.RESET + "Name", ChatColor.RESET + "Click this to change the name."));
+        gui.addElement(new StaticGuiElement('m', new ItemStack(Material.STONE),
+          click -> {
+              return true;
+          }, ChatColor.RESET + "Material", ChatColor.RESET + "Click this to select a material name."));
+        gui.addElement(new StaticGuiElement('r', new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 14),
+          click -> {
+              AnvilGUI.Builder builder = new AnvilGUI.Builder();
+              builder.plugin(pl);
+              builder.preventClose();
+              builder.onComplete((plr, txt) -> {
+                  if (txt.equals("Yes")) {
+                      Chat.send(player, "&aDeleted map: &6" + mapName);
+                  }
+                  return AnvilGUI.Response.close();
+              });
+              builder.text("No");
+              builder.title("Type \"Yes\" to confirm deletion.");
+              builder.open(player);
+              return true;
+          }, ChatColor.RED + "Remove", ChatColor.RESET + "Click this to remove this map."));
+        gui.addElement(new StaticGuiElement('o', new ItemStack(Material.POTION),
+          click -> {
+              return true;
+          }, ChatColor.RESET + "Mode", ChatColor.RESET + "Click this to change the map mode.",
+          ChatColor.RESET + "Modes:", ChatColor.RESET + "Normal - No modifications",
+          ChatColor.RESET + "Jump - Has jump II to jump 2 blocks.",
+          ChatColor.RESET + "Block - Has 6 placeable blocks that", ChatColor.RESET + "get removed after 2 seconds and replenish on ",
+          ChatColor.RESET + "checkpoint and pressure plate activation."));
+        gui.addElement(new StaticGuiElement('d', new ItemStack(Material.NAME_TAG),
+          click -> {
+              return true;
+          }, ChatColor.RESET + "Description", ChatColor.RESET + "Click this to change the description."));
         gui.show(player);
     }
 

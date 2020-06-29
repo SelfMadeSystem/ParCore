@@ -34,7 +34,7 @@ public class SchemUtils {
      * @param wallMaterial The material of the wall. Default's air.
      * @throws IOException if can't save file.
      */
-    public static void saveSchematic(Location loc, int x, int z, String playerName, String mapName, Vector spawnLocation, Material wallMaterial, MapFile.MapMode mode) throws IOException {
+    public static void saveSchematic(Location loc, int x, int z, String playerName, String mapName, String description, Vector spawnLocation, Material wallMaterial, MapFile.MapMode mode) throws IOException {
         File file = new File(FileManager.getSchemaName(playerName, mapName)); //Gets file that the schematic is going to be saved to.
         loc.setY(0); //Sets location to 0 since we're copying from 0-255
         Vector bot = VectorUtils.toWEVector(loc); //Sets the bottom vector as WorldEdit vector.
@@ -56,7 +56,7 @@ public class SchemUtils {
         MapFile mf = FileManager.getMapFile(playerName, mapName); //mf doesn't stand for mother fucker
         mf.setPlayer(playerName);
         mf.setName(mapName);
-        mf.setDescription("");
+        mf.setDescription(description);
         mf.setMode(mode);
         mf.setLikes(new HashSet<>());
         mf.setSpawnLocation(new org.bukkit.util.Vector(spawnLocation.getBlockX() + 0.5, spawnLocation.getBlockY(), spawnLocation.getBlockZ() + 0.5));
@@ -67,8 +67,8 @@ public class SchemUtils {
         FileManager.mapFiles.put(playerName + ":" + mapName, mf);
     }
 
-    public static void saveSchematic(Location loc, int x, int z, String playerName, String mapName, Vector spawnLocation) throws IOException {
-        saveSchematic(loc, x, z, playerName, mapName, spawnLocation, Material.AIR, MapFile.MapMode.NORMAL);
+    public static void saveSchematic(Location loc, int x, int z, String playerName, String mapName, String description, Vector spawnLocation) throws IOException {
+        saveSchematic(loc, x, z, playerName, mapName, description, spawnLocation, Material.AIR, MapFile.MapMode.NORMAL);
     }
 
     /**
