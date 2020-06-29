@@ -67,7 +67,7 @@ public class PlayerManager implements Listener {
         }
         ThreadUtils.syncRep(() -> {
             for (Map.Entry<String, PlayerInfo> entry : players.entrySet()) {
-                if (Bukkit.getPlayer(entry.getKey()).isOnline()) {
+                if (Bukkit.getPlayer(entry.getKey()) != null) {
                     if (entry.getValue().getMode().playing) {
                         entry.getValue().changeBlocks();
                     }

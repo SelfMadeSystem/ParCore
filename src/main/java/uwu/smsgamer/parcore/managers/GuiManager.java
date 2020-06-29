@@ -14,10 +14,11 @@ import java.util.*;
  * Unused. Will be used in final release to have an
  * inventory based GUI to select maps and do stuff.
  */
+// TODO: 2020-06-28 Update DOCS and fix error kthx <:
 public class GuiManager {
     public static HashMap<String, GuiManager> guis = new HashMap<>();
     static ParCore pl;
-    Player player;
+    final Player player;
     List<Elm> list;
 
     private GuiManager(Player player) {
@@ -73,11 +74,11 @@ public class GuiManager {
                 try {
                     Elm clm = list.get(click.getSlot() - 9);
                     if (clm.player.equalsIgnoreCase(player.getName())) {
-                        WorldManager.newMapArena(player, player.getName(), clm.name, false);
+                        WorldManager.newMapArena(player, clm.player, clm.name, false);
                         Chat.send(player, "&aPlaying map: &7" + clm.name + "&a, made by you.");
                         Chat.send(player, "If you complete the map, it will be verified.");
                     } else {
-                        WorldManager.newMapArena(player, player.getName(), clm.name);
+                        WorldManager.newMapArena(player, clm.player, clm.name);
                         Chat.send(player, "&aPlaying map: &7" + clm.name + "&a, made by: &7" + clm.player);
                     }
                     click.getGui().close();
@@ -98,33 +99,41 @@ public class GuiManager {
     }*/
 
     public List<Elm> getFirstRow(boolean ranking, String playersOnly) {
-        List<MapFile> files = new ArrayList<>(FileManager.mapFiles.values());
         List<Elm> pElms = new ArrayList<>(); //Player elms.
         int pp = 0; //player published elms index uwu
         List<Elm> elms = new ArrayList<>(); //All the other ones.
         boolean only = !playersOnly.isEmpty();
-        for (MapFile f : files) {
+        for (MapFile f : FileManager.mapFiles.values()) {
             if (only) {
                 if (f.isPublished() && f.getPlayer().equalsIgnoreCase(playersOnly))
                     elms.add(new Elm(f.getPlayer(), f.getName(), f.getDescription(), Elm.normal, MathUtils.getRating(f.getLikes()), f));
             } else {
                 Elm elm = new Elm(f.getPlayer(), f.getName(), f.getDescription(), MathUtils.getRating(f.getLikes()), f);
-                if (f.getPlayer().equalsIgnoreCase(player.getName())) {
-                    if (f.isPublished()) {
-                        elm.stack = Elm.published;
-                        pElms.add(0, elm);
-                        pp++;
-                    } else if (f.isVerified()) {
-                        elm.stack = Elm.verified;
-                        pElms.add(pp, elm);
+                try {
+                    if (f.
+                      getPlayer().
+                      equalsIgnoreCase(
+                        player
+                          .getName())) {
+                        if (f.isPublished()) {
+                            elm.stack = Elm.published;
+                            pElms.add(0, elm);
+                            pp++;
+                        } else if (f.isVerified()) {
+                            elm.stack = Elm.verified;
+                            pElms.add(pp, elm);
+                        } else {
+                            elm.stack = Elm.nver;
+                            pElms.add(elm);
+                        }
                     } else {
-                        elm.stack = Elm.nver;
-                        pElms.add(elm);
+                        if (!f.isPublished()) continue;
+                        elm.stack = Elm.normal;
+                        elms.add(elm);
                     }
-                } else {
-                    if (!f.isPublished()) continue;
-                    elm.stack = Elm.normal;
-                    elms.add(elm);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                    System.err.println(f.toString());
                 }
             }
         }
