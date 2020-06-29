@@ -27,8 +27,8 @@ import uwu.smsgamer.parcore.utils.ThreadUtils;
   aliases = "upload", usage = "/publish [map name]")
 @Command(name = "save", desc = "Saves the map you're working on.", usage = "/save [map name]")
 @Command(name = "spawn", desc = "Sends you back to spawn.", usage = "/spawn")
-@Command(name = "test", desc = "Tests the map you're working on or another one of your maps." +
-  "If you complete it, it will be verified.", usage = "/test [map name]")
+//@Command(name = "test", desc = "Tests the map you're working on or another one of your maps." +
+//  "If you complete it, it will be verified.", usage = "/test [map name]")
 public final class ParCore extends JavaPlugin /*implements Listener*/ {
 
     /**
@@ -49,7 +49,6 @@ public final class ParCore extends JavaPlugin /*implements Listener*/ {
         setExec("play", new PlayCommand());
         setExec("publish", new PublishCommand());
         setExec("save", new SaveCommand());
-        setExec("test", new TestCommand());
         setExec("spawn", new SpawnCommand());
         //Bukkit.getPluginManager().registerEvents(this, this);
     }
