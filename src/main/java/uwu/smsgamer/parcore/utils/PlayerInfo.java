@@ -88,19 +88,21 @@ public class PlayerInfo {
     }
 
     public enum Mode {
-        SPAWN(true, false, false),
-        MAKE(false, true, false),
-        PLAYING(true, false, true),
-        TESTING(true, false, true),
-        VERIFY(true, false, true);
-        public boolean noBOrD; //No Block Or Damage
+        SPAWN(true, false, false, true),
+        MAKE(false, true, false, true),
+        PLAYING(true, false, true, false),
+        TESTING(true, false, true, false),
+        VERIFY(true, false, true, false);
+        public boolean noBlock; //No Block
         public boolean limitH; //limit horizontal. Vertical is always limited
         public boolean playing; //Respawn on death
+        public boolean noDamage; //No damage
 
-        Mode(boolean noBlock, boolean limitH, boolean playing) {
-            this.noBOrD = noBlock;
+        Mode(boolean noBlock, boolean limitH, boolean playing, boolean noDamage) {
+            this.noBlock = noBlock;
             this.limitH = limitH;
             this.playing = playing;
+            this.noDamage = noDamage;
         }
     }
 }

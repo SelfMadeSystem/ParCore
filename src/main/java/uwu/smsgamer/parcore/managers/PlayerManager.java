@@ -220,10 +220,9 @@ public class PlayerManager implements Listener {
     public void onDamage(EntityDamageEvent event) {
         if (players.containsKey(event.getEntity().getName())) {
             PlayerInfo entry = players.get(event.getEntity().getName());
-            if (entry.getMode().noBOrD) {
+            if (entry.getMode().noDamage) {
                 event.setCancelled(true);
-            }
-            if (entry.getMode().playing) {
+            } else if (entry.getMode().playing) {
                 if ((((Player) event.getEntity()).getHealth() - event.getDamage()) <= 0) {
                     Player p = ((Player) event.getEntity());
                     event.setCancelled(true);
@@ -302,7 +301,7 @@ public class PlayerManager implements Listener {
                 event.getPlayer().setFoodLevel(20);
                 event.getPlayer().setHealth(20);
             }
-            if (entry.getMode().noBOrD && event.getTo().getY() < -4 || event.getTo().getY() > 258) {
+            if (entry.getMode().noBlock && event.getTo().getY() < -4 || event.getTo().getY() > 258) {
                 respawn(event.getPlayer());
             }
         }
@@ -315,7 +314,7 @@ public class PlayerManager implements Listener {
     public void onBreak(BlockBreakEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
             PlayerInfo entry = players.get(event.getPlayer().getName());
-            if (entry.getMode().noBOrD) {
+            if (entry.getMode().noBlock) {
                 Chat.send(event.getPlayer(), "&cYou are not allowed to break blocks!");
                 event.setCancelled(true);
                 return;
@@ -341,7 +340,7 @@ public class PlayerManager implements Listener {
     public void onPlace(BlockPlaceEvent event) {
         if (players.containsKey(event.getPlayer().getName())) {
             PlayerInfo entry = players.get(event.getPlayer().getName());
-            if (entry.getMode().noBOrD) {
+            if (entry.getMode().noBlock) {
                 if (entry.getMode().playing) {
                     String[] split = entry.getMap().split(":");
                     MapFile mf = FileManager.getMapFile(split[0], split[1]);
@@ -371,7 +370,7 @@ public class PlayerManager implements Listener {
     }
 
     @EventHandler
-    public void onStuff(PlayerInteractEvent event) {
+    public void onInteract(PlayerInteractEvent event) {
         PlayerInfo entry = players.get(event.getPlayer().getName());
         if (entry.getMode().playing) {
             if (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK))
