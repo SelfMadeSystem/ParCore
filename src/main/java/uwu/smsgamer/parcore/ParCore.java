@@ -18,6 +18,7 @@ import uwu.smsgamer.parcore.utils.ThreadUtils;
 @Author("Sms_Gamer_3808")
 @Dependency("LuckPerms")
 @Dependency("WorldEdit")
+@Command(name = "delete", aliases = "remove", desc = "Deletes one of your maps.", usage = "/delete [map name]")
 @Command(name = "maps", desc = "Lists your maps and all public maps.", usage = "/maps [mine, player name]")
 @Command(name = "play", desc = "Plays somebody's map if it's published. Plays your own whether or not it's published.",
   usage = "/play [player name] [map name]")
@@ -42,6 +43,7 @@ public final class ParCore extends JavaPlugin /*implements Listener*/ {
         WorldManager.setup(this);
         PlayerManager.setup(this);
         GuiManager.setup(this);
+        setExec("delete", new DeleteCommand());
         setExec("maps", new MapsCommand());
         setExec("play", new PlayCommand());
         setExec("publish", new PublishCommand());
