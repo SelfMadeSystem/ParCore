@@ -22,6 +22,9 @@ public class GuiManager {
     final Player player;
     List<Elm> list;
     MapFile mapFile;
+    String name;
+    String plr;
+    boolean deleted;
 
     private GuiManager(Player player) {
         this.player = player;
@@ -114,7 +117,8 @@ public class GuiManager {
         if (mapName == null || mapName.isEmpty()) {
             AnvilGUI.Builder builder = new AnvilGUI.Builder();
             builder.plugin(pl);
-            builder.title("");
+            builder.text("Map Name Here");
+            Chat.send(player, "Select map name.");
             builder.onComplete((plr, txt) -> {
                 if (txt == null || txt.isEmpty() || !txt.matches("[a-zA-Z0-9]+")) {
                     return AnvilGUI.Response.text("Invalid name.");
@@ -128,7 +132,10 @@ public class GuiManager {
     }
 
     private void openMapSettings0(String mapName) {
+        deleted = false;
         mapFile = FileManager.getMapFile(player.getName(), mapName);
+        name = mapFile.getName();
+        plr = mapFile.getPlayer();
         String[] guiSetup = {
           "n m r o d", //Name Material Remove mOde Description
         };
@@ -153,21 +160,37 @@ public class GuiManager {
           }, ChatColor.RESET + "Name", ChatColor.RESET + "Click this to change the name."));
         gui.addElement(new StaticGuiElement('m', new ItemStack(Material.STONE),
           click -> {
+              AnvilGUI.Builder builder = new AnvilGUI.Builder();
+              builder.plugin(pl);
+              builder.onClose((plr) -> gui.show(player));
+              builder.onComplete((plr, txt) -> {
+                  if (txt == null || txt.isEmpty() || !txt.matches("[a-zA-Z0-9]+")) {
+                      return AnvilGUI.Response.text("Invalid name.");
+                  }
+                  mapFile.setWallMaterial(Material.matchMaterial(txt));
+                  gui.setTitle(ChatColor.GREEN + "Wall Material set to: " + txt);
+                  return AnvilGUI.Response.close();
+              });
+              builder.open(player);
               return true;
-          }, ChatColor.RESET + "Material", ChatColor.RESET + "Click this to select a material name."));
+          }, ChatColor.RESET + "Wall Material", ChatColor.RESET + "Click this to set the name of the wall material."));
         gui.addElement(new StaticGuiElement('r', new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 14),
           click -> {
               AnvilGUI.Builder builder = new AnvilGUI.Builder();
+              Chat.send(player, "Type \"Yes\" to confirm deletion.");
+              builder.text("No");
               builder.plugin(pl);
               builder.preventClose();
               builder.onComplete((plr, txt) -> {
                   if (txt.equals("Yes")) {
+                      SchemUtils.deleteSchematic(player.getName(), txt);
                       Chat.send(player, "&aDeleted map: &6" + mapName);
+                      deleted = true;
+                  } else {
+                      Chat.send(player, "&aDidn't deleted map.");
                   }
                   return AnvilGUI.Response.close();
               });
-              builder.text("No");
-              builder.title("Type \"Yes\" to confirm deletion.");
               builder.open(player);
               return true;
           }, ChatColor.RED + "Remove", ChatColor.RESET + "Click this to remove this map."));
@@ -181,8 +204,59 @@ public class GuiManager {
           ChatColor.RESET + "checkpoint and pressure plate activation."));
         gui.addElement(new StaticGuiElement('d', new ItemStack(Material.NAME_TAG),
           click -> {
+              AnvilGUI.Builder builder = new AnvilGUI.Builder();
+              Chat.send(player, "Type the description here.");
+              builder.plugin(pl);
+              builder.onClose((plr) -> gui.show(player));
+              builder.onComplete((plr, txt) -> {
+                  if (txt == null || txt.isEmpty() || !txt.matches("[a-zA-Z0-9]+")) {
+                      gui.setTitle(ChatColor.GREEN + "Description reset!");
+                      return AnvilGUI.Response.close();
+                  }
+                  mapFile.setDescription(txt);
+                  gui.setTitle(ChatColor.GREEN + "Description set to: " + txt);
+                  return AnvilGUI.Response.close();
+              });
+              builder.open(player);
               return true;
           }, ChatColor.RESET + "Description", ChatColor.RESET + "Click this to change the description."));
+
+        gui.setCloseAction(action -> {
+            if (!deleted) {
+                SchemUtils.deleteSchematic(plr, name);
+                WorldManager.saveBuildArena(player, mapFile.getName(), mapFile.getDescription(),
+                  mapFile.getWallMaterial(), mapFile.getMode());
+                Chat.send(player, "&aSaved settings.");
+            }
+            return true;
+        });
+
+        gui.show(player);
+    }
+
+    public void openSelector(Act action, String... txt) {
+        String[] guiSetup = {
+          "ggggggggg",
+        };
+        InventoryGui gui = new InventoryGui(pl, player, "Select a map", guiSetup);
+        gui.setFiller(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5));
+        GuiElementGroup group = new GuiElementGroup('g');
+
+        for (Elm elm : list = getFirstRow(false, player.getName())) {
+            List<String> text = new ArrayList<>(Arrays.asList(ChatColor.RESET + elm.name, (elm.description == null ||
+                elm.description.isEmpty()) ? "No description... Find out what the map offers by yourself!" : elm.description,
+              ChatColor.RESET + "By: " + elm.player, ChatColor.RESET + "Rating: " + elm.rating));
+            if (elm.player.equalsIgnoreCase(player.getName())) {
+                if (elm.mf.isVerified()) text.add(ChatColor.GREEN + "Verified.");
+                else text.add(ChatColor.RED + "Not verified.");
+                if (elm.mf.isPublished()) text.add(ChatColor.GREEN + "Published.");
+                else text.add(ChatColor.RED + "Not published.");
+                text.addAll(Arrays.asList(txt));
+                group.addElement(new StaticGuiElement('e', elm.stack, click -> action.onClick(click, gui, list.get(click.getSlot() - 9)),
+                  text.toArray(new String[0])));
+            }
+        }
+        gui.addElement(group);
         gui.show(player);
     }
 
@@ -202,11 +276,7 @@ public class GuiManager {
             } else {
                 Elm elm = new Elm(f.getPlayer(), f.getName(), f.getDescription(), MathUtils.getRating(f.getLikes()), f);
                 try {
-                    if (f.
-                      getPlayer().
-                      equalsIgnoreCase(
-                        player
-                          .getName())) {
+                    if (f.getPlayer().equalsIgnoreCase(player.getName())) {
                         if (f.isPublished()) {
                             elm.stack = Elm.published;
                             pElms.add(0, elm);
@@ -237,7 +307,11 @@ public class GuiManager {
         return pElms;
     }
 
-    static class Elm {
+    public interface Act {
+        boolean onClick(GuiElement.Click click, InventoryGui gui, Elm elm);
+    }
+
+    public static class Elm {
         public static ItemStack nver = new ItemStack(Material.STAINED_CLAY, 1, (short) 3); //not verified
         public static ItemStack verified = new ItemStack(Material.STAINED_CLAY, 1, (short) 13);
         public static ItemStack published = new ItemStack(Material.STAINED_CLAY, 1, (short) 5);

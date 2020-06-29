@@ -1,5 +1,6 @@
 package uwu.smsgamer.parcore.commands;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import uwu.smsgamer.parcore.managers.*;
@@ -7,7 +8,7 @@ import uwu.smsgamer.parcore.utils.*;
 
 import java.util.List;
 
-public class SaveCommand implements TabExecutor {
+public class EditCommand implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof ConsoleCommandSender) {
@@ -15,24 +16,23 @@ public class SaveCommand implements TabExecutor {
             return true;
         }
         PlayerInfo info = PlayerManager.players.get(sender.getName());
-        if (!info.getMode().equals(PlayerInfo.Mode.MAKE)) {
-            Chat.send(sender, "&cYou are not in editing mode. If this in an error, please report to administration.");
-            return true;
-        }
         String[] split = info.getMap().split(":");
         if (split.length == 1 || split[1] == null || split[1].isEmpty()) {
             if (args.length == 0)
-                GuiManager.getManager((Player) sender).openMapSettings("");
+                GuiManager.getManager((Player) sender).openSelector((click, gui, elm) -> {
+                    if (click.getType().isLeftClick()) {
+                        GuiManager.getManager((Player) sender).openMapSettings(elm.name);
+                    } else {
+                        WorldManager.newBuildArena((Player) sender, elm.name);
+                        Chat.send(sender, "&aYou are now editing: &6" + elm.name);
+                    }
+                    return true;
+                }, ChatColor.RESET + "Left click to edit map properties.", ChatColor.RESET + "Right click to edit map.");
             else
                 GuiManager.getManager((Player) sender).openMapSettings(args[1]);
         } else {
             if (args.length == 0) {
-                MapFile mf = FileManager.getMapFile(sender.getName(), split[1]);
-                if (WorldManager.saveBuildArena((Player) sender, mf.getName(), mf.getDescription(),
-                  mf.getWallMaterial(), mf.getMode())) {
-                    Chat.send(sender, "&aSuccessfully saved!");
-                    Chat.send(sender, "&aType \"/save " + mf.getName() + "\" to edit map properties.");
-                }
+                GuiManager.getManager((Player) sender).openMapSettings(info.getMap());
             } else {
                 GuiManager.getManager((Player) sender).openMapSettings(args[0]);
             }
