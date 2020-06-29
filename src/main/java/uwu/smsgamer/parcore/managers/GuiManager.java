@@ -70,6 +70,7 @@ public class GuiManager {
                 if (elm.mf.isPublished()) text.add(ChatColor.GREEN + "Published.");
                 else text.add(ChatColor.RED + "Not published.");
                 text.add(ChatColor.RESET + "Right click to edit map.");
+                // TODO: 2020-06-28 Middle click to publish or test'n'publish.
             }
             group.addElement(new StaticGuiElement('e', elm.stack, click -> {
                 try {
