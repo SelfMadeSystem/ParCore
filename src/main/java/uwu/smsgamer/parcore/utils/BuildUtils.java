@@ -1,7 +1,11 @@
 package uwu.smsgamer.parcore.utils;
 
 import com.sk89q.worldedit.Vector;
-import org.bukkit.*;
+import net.minecraft.server.v1_12_R1.*;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_12_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 
 import java.util.*;
 
@@ -20,16 +24,19 @@ public class BuildUtils {
     public static void setupArena(Material walls, World world, Vector min, Vector max, boolean... noAir) {
         final int maxX = Math.abs(min.getBlockX() - max.getBlockX()); //Gets the maxX value from subtracting the minBlockX & maxBlockX
         final int maxZ = Math.abs(min.getBlockZ() - max.getBlockZ()); //Gets the maxZ value from subtracting the minBlockZ & maxBlockZ
+        final int minBX = min.getBlockX();
+        final int minBZ = min.getBlockZ();
         final boolean airnt = noAir.length != 0 && noAir[0];
-        final boolean async = !Bukkit.isPrimaryThread();
+        //final boolean async = !Bukkit.isPrimaryThread();
+        IBlockData air = CraftMagicNumbers.getBlock(0).fromLegacyData(0);
+        IBlockData wall = CraftMagicNumbers.getBlock(walls.getId()).fromLegacyData(0);
         for (int y = 0; y < 256; y++) { //For every block from 0-256
             for (int x = -20; x <= (maxX + 20); x++) { //For every block from 0-maxX
                 for (int z = -20; z <= (maxZ + 20); z++) { //For every block from 0-maxZ
-                    final int fx = min.getBlockX() + x; //Gets x location in world that this block will be.
-                    final int fy = y;
-                    final int fz = min.getBlockZ() + z; //Gets z location in world that this block will be.
+                    final int fx = minBX + x; //Gets x location in world that this block will be.
+                    final int fz = minBZ + z; //Gets z location in world that this block will be.
                     final boolean check = x == 0 || z == 0 || x == maxX || z == maxZ;
-                    if (async) {
+                    /*if (async) {
                         ThreadUtils.syncExec(() -> {
                             if (check)
                                 world.getBlockAt(fx, fy, fz).setType(walls);
@@ -37,15 +44,20 @@ public class BuildUtils {
                                 world.getBlockAt(fx, fy, fz).setType(Material.AIR);
                             //Places the wall material if the x or z value are 0 or equal to their max. Places air otherwise.
                         });
-                    } else {
-                        //ThreadUtils.syncExec(() ->{
-                        if (check)
-                            world.getBlockAt(fx, fy, fz).setType(walls);
-                        else if (!airnt)
-                            world.getBlockAt(fx, fy, fz).setType(Material.AIR);
-                        //Places the wall material if the x or z value are 0 or equal to their max. Places air otherwise.
-                        //});
+                    } else*/
+
+                    //ThreadUtils.syncExec(() ->{
+                    BlockPosition pos = new BlockPosition(fx, y, fz);
+                    if (check) {
+                        ((CraftChunk) world.getBlockAt(fx, y, fz).getChunk()).getHandle().getWorld().setTypeAndData(pos, wall, 18);
+                        //world.getBlockAt(fx, y, fz).setType(walls);
+                    } else if (!airnt) {
+                        ((CraftChunk) world.getBlockAt(fx, y, fz).getChunk()).getHandle().getWorld().setTypeAndData(pos, air, 18);
+                        //world.getBlockAt(fx, y, fz).setType(Material.AIR);
                     }
+                    //Places the wall material if the x or z value are 0 or equal to their max. Places air otherwise.
+                    //});
+
                 }
             }
         }

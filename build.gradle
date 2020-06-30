@@ -39,6 +39,7 @@ repositories {
 dependencies {
     provided 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
     provided 'org.spigotmc:plugin-annotations:1.2.2-SNAPSHOT'
+    provided fileTree("libs")
     
     annotationProcessor 'org.spigotmc:plugin-annotations:1.2.2-SNAPSHOT'
 

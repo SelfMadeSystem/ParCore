@@ -234,11 +234,10 @@ public class GuiManager {
               Chat.send(player, "Type \"Yes\" to confirm deletion.");
               builder.text("No");
               builder.plugin(pl);
-              builder.preventClose();
               builder.onComplete((plr, txt) -> {
                   if (txt.equals("Yes")) {
                       SchemUtils.deleteSchematic(player.getName(), txt);
-                      Chat.send(player, "&aDeleted map: &6" + mapName.split(":")[1]);
+                      Chat.send(player, "&aDeleted map: &6" + mapName);
                       deleted = true;
                   } else {
                       Chat.send(player, "&aDidn't deleted map.");
