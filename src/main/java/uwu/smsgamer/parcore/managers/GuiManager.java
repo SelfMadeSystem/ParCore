@@ -20,7 +20,6 @@ public class GuiManager {
     public static HashMap<String, GuiManager> guis = new HashMap<>();
     static ParCore pl;
     final Player player;
-    List<Elm> list;
     MapFile mapFile;
     String name;
     String plr;
@@ -38,6 +37,81 @@ public class GuiManager {
 
     public static void setup(ParCore plugin) {
         pl = plugin;
+    }
+
+    public static List<Elm> getFirstRow(boolean ranking, String playersOnly, String owner) {
+        List<Elm> pElms = new ArrayList<>(); //Player elms.
+        int pp = 0; //player published elms index uwu
+        List<Elm> elms = new ArrayList<>(); //All the other ones.
+        boolean only = !playersOnly.isEmpty();
+        boolean o = !owner.isEmpty();
+        for (MapFile f : FileManager.mapFiles.values()) {
+            if (only) {
+                if (o && f.getPlayer().equalsIgnoreCase(playersOnly)) {
+                    Elm elm = new Elm(f.getPlayer(), f.getName(), f.getDescription(), MathUtils.getRating(f.getLikes()), f);
+                    if (f.isPublished()) {
+                        elm.stack = Elm.published;
+                        pElms.add(0, elm);
+                        pp++;
+                    } else if (f.isVerified()) {
+                        elm.stack = Elm.verified;
+                        pElms.add(pp, elm);
+                    } else {
+                        elm.stack = Elm.nver;
+                        pElms.add(elm);
+                    }
+                } else if (!o && (f.isPublished() && f.getPlayer().equalsIgnoreCase(playersOnly)))
+                    elms.add(new Elm(f.getPlayer(), f.getName(), f.getDescription(), Elm.normal, MathUtils.getRating(f.getLikes()), f));
+            } else {
+                Elm elm = new Elm(f.getPlayer(), f.getName(), f.getDescription(), MathUtils.getRating(f.getLikes()), f);
+                try {
+                    if (f.getPlayer().equalsIgnoreCase(owner)) {
+                        if (f.isPublished()) {
+                            elm.stack = Elm.published;
+                            pElms.add(0, elm);
+                            pp++;
+                        } else if (f.isVerified()) {
+                            elm.stack = Elm.verified;
+                            pElms.add(pp, elm);
+                        } else {
+                            elm.stack = Elm.nver;
+                            pElms.add(elm);
+                        }
+                    } else {
+                        if (!f.isPublished()) continue;
+                        elm.stack = Elm.normal;
+                        elms.add(elm);
+                    }
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                    System.err.println(f.toString());
+                }
+            }
+        }
+        if (ranking)
+            elms.sort(Comparator.comparingDouble(f -> f.rating));
+        else
+            elms.sort(Comparator.comparing(f -> f.name));
+        pElms.addAll(elms);
+        return pElms;
+    }
+
+    public void openMapSettings(String mapName) {
+        if (mapName == null || mapName.isEmpty()) {
+            AnvilGUI.Builder builder = new AnvilGUI.Builder();
+            builder.plugin(pl);
+            builder.text("Map Name Here");
+            Chat.send(player, "Select map name.");
+            builder.onComplete((plr, txt) -> {
+                if (txt == null || txt.isEmpty() || !txt.matches("[a-zA-Z0-9]+")) {
+                    return AnvilGUI.Response.text("Invalid name.");
+                }
+                openMapSettings0(txt);
+                return AnvilGUI.Response.close();
+            });
+            builder.open(player);
+        } else
+            openMapSettings0(mapName);
     }
 
     public void openMapsGui(String playerOnly) {
@@ -73,7 +147,7 @@ public class GuiManager {
         // Last page
         gui.addElement(new GuiPageElement('l', new ItemStack(Material.ARROW), PageAction.LAST, "Go to last page (%pages%)"));
 
-        for (Elm elm : list = getFirstRow(false, playerOnly)) {
+        for (Elm elm : getFirstRow(false, playerOnly, playerOnly.equalsIgnoreCase(player.getName()) ? player.getName() : "")) {
             List<String> text = new ArrayList<>(Arrays.asList(ChatColor.RESET + elm.name, (elm.description == null || elm.description.isEmpty()) ? "No description... Find out what the map offers by yourself!" : elm.description,
               ChatColor.RESET + "By: " + elm.player, ChatColor.RESET + "Rating: " + elm.rating));
             if (elm.player.equalsIgnoreCase(player.getName())) {
@@ -86,19 +160,18 @@ public class GuiManager {
             }
             group.addElement(new StaticGuiElement('e', elm.stack, click -> {
                 try {
-                    Elm clm = list.get(click.getSlot() - 9);
-                    if (clm.player.equalsIgnoreCase(player.getName())) {
+                    if (elm.player.equalsIgnoreCase(player.getName())) {
                         if (click.getType().isRightClick()) {
-                            WorldManager.newBuildArena(player, clm.name);
-                            Chat.send(player, "&aYou are now editing: &6" + clm.name);
+                            WorldManager.newBuildArena(player, elm.name);
+                            Chat.send(player, "&aYou are now editing: &6" + elm.name);
                         } else {
-                            WorldManager.newMapArena(player, clm.player, clm.name, false);
-                            Chat.send(player, "&aPlaying map: &6" + clm.name + "&a, made by you.");
+                            WorldManager.newMapArena(player, elm.player, elm.name, false);
+                            Chat.send(player, "&aPlaying map: &6" + elm.name + "&a, made by you.");
                             Chat.send(player, "If you complete the map, it will be verified.");
                         }
                     } else {
-                        WorldManager.newMapArena(player, clm.player, clm.name);
-                        Chat.send(player, "&aPlaying map: &6" + clm.name + "&a, made by: &7" + clm.player);
+                        WorldManager.newMapArena(player, elm.player, elm.name);
+                        Chat.send(player, "&aPlaying map: &6" + elm.name + "&a, made by: &7" + elm.player);
                     }
                     click.getGui().close();
                     return true;
@@ -111,24 +184,6 @@ public class GuiManager {
         }
         gui.addElement(group);
         gui.show(player);
-    }
-
-    public void openMapSettings(String mapName) {
-        if (mapName == null || mapName.isEmpty()) {
-            AnvilGUI.Builder builder = new AnvilGUI.Builder();
-            builder.plugin(pl);
-            builder.text("Map Name Here");
-            Chat.send(player, "Select map name.");
-            builder.onComplete((plr, txt) -> {
-                if (txt == null || txt.isEmpty() || !txt.matches("[a-zA-Z0-9]+")) {
-                    return AnvilGUI.Response.text("Invalid name.");
-                }
-                openMapSettings0(txt);
-                return AnvilGUI.Response.close();
-            });
-            builder.open(player);
-        } else
-            openMapSettings0(mapName);
     }
 
     private void openMapSettings0(String mapName) {
@@ -184,7 +239,7 @@ public class GuiManager {
               builder.onComplete((plr, txt) -> {
                   if (txt.equals("Yes")) {
                       SchemUtils.deleteSchematic(player.getName(), txt);
-                      Chat.send(player, "&aDeleted map: &6" + mapName);
+                      Chat.send(player, "&aDeleted map: &6" + mapName.split(":")[1]);
                       deleted = true;
                   } else {
                       Chat.send(player, "&aDidn't deleted map.");
@@ -234,6 +289,10 @@ public class GuiManager {
         gui.show(player);
     }
 
+    /*public static String[][] getFirstRowPlayerOnly(String player) {
+        FileManager.mapFiles.values().stream().filter(val -> val.getPlayer().equalsIgnoreCase(player));
+    }*/
+
     public void openSelector(Act action, String... txt) {
         String[] guiSetup = {
           "ggggggggg",
@@ -242,7 +301,7 @@ public class GuiManager {
         gui.setFiller(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5));
         GuiElementGroup group = new GuiElementGroup('g');
 
-        for (Elm elm : list = getFirstRow(false, player.getName())) {
+        for (Elm elm : getFirstRow(false, player.getName(), player.getName())) {
             List<String> text = new ArrayList<>(Arrays.asList(ChatColor.RESET + elm.name, (elm.description == null ||
                 elm.description.isEmpty()) ? "No description... Find out what the map offers by yourself!" : elm.description,
               ChatColor.RESET + "By: " + elm.player, ChatColor.RESET + "Rating: " + elm.rating));
@@ -252,59 +311,12 @@ public class GuiManager {
                 if (elm.mf.isPublished()) text.add(ChatColor.GREEN + "Published.");
                 else text.add(ChatColor.RED + "Not published.");
                 text.addAll(Arrays.asList(txt));
-                group.addElement(new StaticGuiElement('e', elm.stack, click -> action.onClick(click, gui, list.get(click.getSlot() - 9)),
+                group.addElement(new StaticGuiElement('e', elm.stack, click -> action.onClick(click, gui, elm),
                   text.toArray(new String[0])));
             }
         }
         gui.addElement(group);
         gui.show(player);
-    }
-
-    /*public static String[][] getFirstRowPlayerOnly(String player) {
-        FileManager.mapFiles.values().stream().filter(val -> val.getPlayer().equalsIgnoreCase(player));
-    }*/
-
-    public List<Elm> getFirstRow(boolean ranking, String playersOnly) {
-        List<Elm> pElms = new ArrayList<>(); //Player elms.
-        int pp = 0; //player published elms index uwu
-        List<Elm> elms = new ArrayList<>(); //All the other ones.
-        boolean only = !playersOnly.isEmpty();
-        for (MapFile f : FileManager.mapFiles.values()) {
-            if (only) {
-                if (f.isPublished() && f.getPlayer().equalsIgnoreCase(playersOnly))
-                    elms.add(new Elm(f.getPlayer(), f.getName(), f.getDescription(), Elm.normal, MathUtils.getRating(f.getLikes()), f));
-            } else {
-                Elm elm = new Elm(f.getPlayer(), f.getName(), f.getDescription(), MathUtils.getRating(f.getLikes()), f);
-                try {
-                    if (f.getPlayer().equalsIgnoreCase(player.getName())) {
-                        if (f.isPublished()) {
-                            elm.stack = Elm.published;
-                            pElms.add(0, elm);
-                            pp++;
-                        } else if (f.isVerified()) {
-                            elm.stack = Elm.verified;
-                            pElms.add(pp, elm);
-                        } else {
-                            elm.stack = Elm.nver;
-                            pElms.add(elm);
-                        }
-                    } else {
-                        if (!f.isPublished()) continue;
-                        elm.stack = Elm.normal;
-                        elms.add(elm);
-                    }
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                    System.err.println(f.toString());
-                }
-            }
-        }
-        if (ranking)
-            elms.sort(Comparator.comparingDouble(f -> f.rating));
-        else
-            elms.sort(Comparator.comparing(f -> f.name));
-        pElms.addAll(elms);
-        return pElms;
     }
 
     public interface Act {
