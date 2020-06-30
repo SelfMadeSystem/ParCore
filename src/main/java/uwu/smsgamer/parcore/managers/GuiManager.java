@@ -122,8 +122,8 @@ public class GuiManager {
         };
         if (playerOnly == null || playerOnly.isEmpty()) playerOnly = "";
         else if (playerOnly.equalsIgnoreCase("mine")) playerOnly = player.getName();
-        InventoryGui gui = new InventoryGui(pl, player, playerOnly.isEmpty() ? "Maps" :
-          (playerOnly.equalsIgnoreCase(player.getName()) ? "Your" : playerOnly) + " maps", guiSetup);
+        InventoryGui gui = new InventoryGui(pl, player, /*playerOnly.isEmpty() ? */"Left click to play."/* :
+          (playerOnly.equalsIgnoreCase(player.getName()) ? "Your" : playerOnly) + " maps"*/, guiSetup);
         gui.setFiller(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5));
         GuiElementGroup group = new GuiElementGroup('g');
 
@@ -287,10 +287,6 @@ public class GuiManager {
 
         gui.show(player);
     }
-
-    /*public static String[][] getFirstRowPlayerOnly(String player) {
-        FileManager.mapFiles.values().stream().filter(val -> val.getPlayer().equalsIgnoreCase(player));
-    }*/
 
     public void openSelector(Act action, String... txt) {
         String[] guiSetup = {
