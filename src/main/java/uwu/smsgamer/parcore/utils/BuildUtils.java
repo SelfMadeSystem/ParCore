@@ -21,24 +21,38 @@ public class BuildUtils {
         final int maxX = Math.abs(min.getBlockX() - max.getBlockX()); //Gets the maxX value from subtracting the minBlockX & maxBlockX
         final int maxZ = Math.abs(min.getBlockZ() - max.getBlockZ()); //Gets the maxZ value from subtracting the minBlockZ & maxBlockZ
         final boolean airnt = noAir.length != 0 && noAir[0];
+        final boolean async = !Bukkit.isPrimaryThread();
         for (int y = 0; y < 256; y++) { //For every block from 0-256
-            for (int x = 0; x <= maxX; x++) { //For every block from 0-maxX
-                for (int z = 0; z <= maxZ; z++) { //For every block from 0-maxZ
-                    int fx = min.getBlockX() + x; //Gets x location in world that this block will be.
-                    int fz = min.getBlockZ() + z; //Gets z location in world that this block will be.
-                    //ThreadUtils.syncExec(() ->
-                    if ((x == 0 || z == 0 || x == maxX || z == maxZ))
-                        world.getBlockAt(fx, y, fz).setType(walls);
-                    else if (!airnt)
-                        world.getBlockAt(fx, y, fz).setType(Material.AIR);
-                    //Places the wall material if the x or z value are 0 or equal to their max. Places air otherwise.
-                    //);
+            for (int x = -20; x <= (maxX + 20); x++) { //For every block from 0-maxX
+                for (int z = -20; z <= (maxZ + 20); z++) { //For every block from 0-maxZ
+                    final int fx = min.getBlockX() + x; //Gets x location in world that this block will be.
+                    final int fy = y;
+                    final int fz = min.getBlockZ() + z; //Gets z location in world that this block will be.
+                    final boolean check = x == 0 || z == 0 || x == maxX || z == maxZ;
+                    if (async) {
+                        ThreadUtils.syncExec(() -> {
+                            if (check)
+                                world.getBlockAt(fx, fy, fz).setType(walls);
+                            else if (!airnt)
+                                world.getBlockAt(fx, fy, fz).setType(Material.AIR);
+                            //Places the wall material if the x or z value are 0 or equal to their max. Places air otherwise.
+                        });
+                    } else {
+                        //ThreadUtils.syncExec(() ->{
+                        if (check)
+                            world.getBlockAt(fx, fy, fz).setType(walls);
+                        else if (!airnt)
+                            world.getBlockAt(fx, fy, fz).setType(Material.AIR);
+                        //Places the wall material if the x or z value are 0 or equal to their max. Places air otherwise.
+                        //});
+                    }
                 }
             }
         }
     }
 
-    public static List<Vector>[] getAllMaterialLocations(List<Material> mats, World world, Vector min, Vector max) {
+    public static List<Vector>[] getAllMaterialLocations(List<Material> mats, World world, Vector min, Vector
+      max) {
         final int maxX = Math.abs(min.getBlockX() - max.getBlockX()); //Gets the maxX value from subtracting the minBlockX & maxBlockX
         final int maxZ = Math.abs(min.getBlockZ() - max.getBlockZ()); //Gets the maxZ value from subtracting the minBlockZ & maxBlockZ
         ArrayList<Vector>[] replacements = new ArrayList[]{new ArrayList<>(), new ArrayList<>()};

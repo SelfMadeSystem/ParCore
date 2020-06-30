@@ -1,7 +1,7 @@
 package uwu.smsgamer.parcore.utils;
 
 import lombok.*;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.Vector;
 import uwu.smsgamer.parcore.managers.FileManager;
@@ -129,14 +129,21 @@ public class MapFile {
     }
 
     public enum MapMode {
-        NORMAL,
-        JUMP,
-        BLOCK;
+        NORMAL(GameMode.ADVENTURE),
+        JUMP(GameMode.ADVENTURE),
+        BLOCK(GameMode.ADVENTURE),
+        SURVIVAL(GameMode.SURVIVAL);
+        public GameMode mode;
+
+        MapMode(GameMode mode) {
+            this.mode = mode;
+        }
 
         public static MapMode getMode(String st) {
             if (st == null || st.isEmpty() || st.equalsIgnoreCase("normal")) return NORMAL;
             else if (st.equalsIgnoreCase("jump")) return JUMP;
             else if (st.equalsIgnoreCase("block")) return BLOCK;
+            else if (st.equalsIgnoreCase("survival")) return SURVIVAL;
             return NORMAL;
         }
     }

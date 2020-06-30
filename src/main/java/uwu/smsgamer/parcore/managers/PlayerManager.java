@@ -105,15 +105,18 @@ public class PlayerManager implements Listener {
         //Sets up the arena by clearing everything between min & max vectors.
         pasteInMap(player, min, playerName, mapName); //Pastes in the map :)
         if (mf.getMode().equals(MapFile.MapMode.BLOCK)) {
-            player.setGameMode(GameMode.SURVIVAL); //Sets the player in adventure so that he can't place or break any blox.
             invForBlocks(player);
-        } else
-            player.setGameMode(GameMode.ADVENTURE); //Sets the player in adventure so that he can't place or break any blox.
+        }
+        player.setGameMode(mf.getMode().mode);
         if (mf.getMode().equals(MapFile.MapMode.JUMP)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000000, 1, false, false), true);
+            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP,
+              100000000, 1, false, false), true);
+
         }
         player.getInventory().clear(); //Clears his inventory.
+
         respawn(player); //Finally, teleports the player to the desired location.
+
         players.get(player.getName()).changeBlocks(); //makes changeBlock happen
     }
 
@@ -170,6 +173,8 @@ public class PlayerManager implements Listener {
         players.put(player.getName(), new PlayerInfo(null, null, PlayerInfo.Mode.SPAWN, Vars.spawnLocation, null));
         //Adds the player's name as key, and a new FourEntry with null boundaries,
         // 2 (at spawn) as the type, and the spawn location as the respawn location.
+        for (PotionEffect potion : player.getActivePotionEffects())
+            player.removePotionEffect(potion.getType());
         player.setGameMode(GameMode.ADVENTURE); //Sets the player in adventure so that he can't place or break any blox.
         player.getInventory().clear(); //Clears his inventory.
         player.setHealth(20); //Sets player's health to 20
@@ -313,6 +318,9 @@ public class PlayerManager implements Listener {
         if (players.containsKey(event.getPlayer().getName())) {
             PlayerInfo entry = players.get(event.getPlayer().getName());
             if (entry.getMode().noBlock) {
+                if (entry.getMode().playing)
+                    if (FileManager.getMapFile(entry.getMap()).getMode().equals(MapFile.MapMode.SURVIVAL))
+                        return;
                 Chat.send(event.getPlayer(), "&cYou are not allowed to break blocks!");
                 event.setCancelled(true);
                 return;
@@ -340,6 +348,9 @@ public class PlayerManager implements Listener {
             PlayerInfo entry = players.get(event.getPlayer().getName());
             if (entry.getMode().noBlock) {
                 if (entry.getMode().playing) {
+                    if (entry.getMode().playing)
+                        if (FileManager.getMapFile(entry.getMap()).getMode().mode.equals(GameMode.SURVIVAL))
+                            return;
                     String[] split = entry.getMap().split(":");
                     MapFile mf = FileManager.getMapFile(split[0], split[1]);
                     if (mf.getMode().equals(MapFile.MapMode.BLOCK)) {

@@ -66,7 +66,8 @@ public class WorldManager {
         Vector max = new Vector(Vars.size.getBlockX() + (last * Vars.spacing), 255, Vars.size.getBlockZ() + (last * Vars.spacing));
         //Gets the max vector by getting the the size set in vars and adding, the index of the player multiplied by the spacing.
         PlayerManager.playerMakeMap(player, min, max, ""); //Tells PlayerManager that we're making a "MakeMap" (building arena)
-        BuildUtils.setupArena(Vars.wallMaterial, world, min, max); //Sets up the arena with wallMaterial set in Vars as the wall material,
+        BuildUtils.setupArena(Vars.wallMaterial, world, min, max);
+        //Sets up the arena with wallMaterial set in Vars as the wall material,
         // the "world" set up in the setup function, and the minimum and maximum vector positions.
         player.setAllowFlight(true); //Sets the player to be able to fly.
         player.setFlying(true); //Makes sure the player is flying so that he doesn't fall into the void.

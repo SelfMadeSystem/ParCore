@@ -51,6 +51,12 @@ public class FileManager {
         return mF != null ? mF.getSchem() : new File(mapPath, player + sp + map + ".schematic");
     }
 
+
+    public static MapFile getMapFile(String map) {
+        String[] split = map.split(":");
+        return getMapFile(split[0], split[1]);
+    }
+
     public static MapFile getMapFile(String player, String map) {
         if (mapFiles.containsKey(player + sp + map))
             return mapFiles.get(player + sp + map);
