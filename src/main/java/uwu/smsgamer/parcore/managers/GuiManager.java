@@ -39,15 +39,14 @@ public class GuiManager {
         pl = plugin;
     }
 
-    public static List<Elm> getFirstRow(boolean ranking, String playersOnly, String owner) {
+    public static List<Elm> getFirstRow(boolean ranking, String playersOnly, boolean justPlayer, String owner) {
         List<Elm> pElms = new ArrayList<>(); //Player elms.
         int pp = 0; //player published elms index uwu
         List<Elm> elms = new ArrayList<>(); //All the other ones.
         boolean only = !playersOnly.isEmpty();
-        boolean o = !owner.isEmpty();
         for (MapFile f : FileManager.mapFiles.values()) {
             if (only) {
-                if (o && f.getPlayer().equalsIgnoreCase(playersOnly)) {
+                if (justPlayer && f.getPlayer().equalsIgnoreCase(playersOnly)) {
                     Elm elm = new Elm(f.getPlayer(), f.getName(), f.getDescription(), MathUtils.getRating(f.getLikes()), f);
                     if (f.isPublished()) {
                         elm.stack = Elm.published;
@@ -60,7 +59,7 @@ public class GuiManager {
                         elm.stack = Elm.nver;
                         pElms.add(elm);
                     }
-                } else if (!o && (f.isPublished() && f.getPlayer().equalsIgnoreCase(playersOnly)))
+                } else if (!justPlayer && (f.isPublished() && f.getPlayer().equalsIgnoreCase(playersOnly)))
                     elms.add(new Elm(f.getPlayer(), f.getName(), f.getDescription(), Elm.normal, MathUtils.getRating(f.getLikes()), f));
             } else {
                 Elm elm = new Elm(f.getPlayer(), f.getName(), f.getDescription(), MathUtils.getRating(f.getLikes()), f);
@@ -147,7 +146,7 @@ public class GuiManager {
         // Last page
         gui.addElement(new GuiPageElement('l', new ItemStack(Material.ARROW), PageAction.LAST, "Go to last page (%pages%)"));
 
-        for (Elm elm : getFirstRow(false, playerOnly, playerOnly.equalsIgnoreCase(player.getName()) ? player.getName() : "")) {
+        for (Elm elm : getFirstRow(false, playerOnly, false, player.getName())) {
             List<String> text = new ArrayList<>(Arrays.asList(ChatColor.RESET + elm.name, (elm.description == null || elm.description.isEmpty()) ? "No description... Find out what the map offers by yourself!" : elm.description,
               ChatColor.RESET + "By: " + elm.player, ChatColor.RESET + "Rating: " + elm.rating));
             if (elm.player.equalsIgnoreCase(player.getName())) {
@@ -301,7 +300,7 @@ public class GuiManager {
         gui.setFiller(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5));
         GuiElementGroup group = new GuiElementGroup('g');
 
-        for (Elm elm : getFirstRow(false, player.getName(), player.getName())) {
+        for (Elm elm : getFirstRow(false, player.getName(), true, player.getName())) {
             List<String> text = new ArrayList<>(Arrays.asList(ChatColor.RESET + elm.name, (elm.description == null ||
                 elm.description.isEmpty()) ? "No description... Find out what the map offers by yourself!" : elm.description,
               ChatColor.RESET + "By: " + elm.player, ChatColor.RESET + "Rating: " + elm.rating));
